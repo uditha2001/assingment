@@ -1,0 +1,165 @@
+version: '3.8'
+
+networks:
+  booking-network:
+    driver: bridge
+
+services:
+  sql-server-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sql-server-db
+    restart: unless-stopped
+    environment:
+      SA_PASSWORD: "SPAxim1@"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - booking-network
+
+  adapter-factory:
+    build:
+      context: ./bookingPlatform/AdapterFactory/AdapterFactory
+      dockerfile: Dockerfile
+    container_name: adapter-factory
+    restart: unless-stopped
+    ports:
+      - "5008:8080"
+    depends_on:
+      - sql-server-db
+    networks:
+      - booking-network
+
+  abc-mock-service:
+    build:
+      context: ./bookingPlatform/EbayMockService/EbayMockService
+      dockerfile: Dockerfile
+    container_name: abc-mock-service
+    restart: unless-stopped
+    ports:
+      - "5239:8080"
+    depends_on:
+      - sql-server-db
+    networks:
+      - booking-network
+
+  cde-mock-service:
+    build:
+      context: ./bookingPlatform/AmazoneMockService/AmazoneMockService
+      dockerfile: Dockerfile
+    container_name: cde-mock-service
+    restart: unless-stopped
+    ports:
+      - "5015:8080"
+    depends_on:
+      - sql-server-db
+    networks:
+      - booking-network
+
+  order-service:
+    build:
+      context: ./bookingPlatform/OrderService/OrderService.API
+      dockerfile: Dockerfile
+    container_name: order-service
+    restart: unless-stopped
+    ports:
+      - "5062:8080"
+    depends_on:
+      - sql-server-db
+    environment:
+      - ConnectionStrings__orderDbString=Data Source=sql-server-db,1433;Initial Catalog=Order;User Id=sa;Password=SPAxim1@;TrustServerCertificate=True
+    networks:
+      - booking-network
+
+  cart-service:
+    build:
+      context: ./bookingPlatform/CartService/CartService.API
+      dockerfile: Dockerfile
+    container_name: cart-service
+    restart: unless-stopped
+    ports:
+      - "5002:8080"
+    depends_on:
+      - order-service
+      - adapter-factory
+      - abc-mock-service
+      - cde-mock-service
+      - sql-server-db
+    environment:
+      - ConnectionStrings__cartConnectionString=Data Source=sql-server-db,1433;Initial Catalog=cart;User Id=sa;Password=SPAxim1@;TrustServerCertificate=True
+    networks:
+      - booking-network
+
+  product-service:
+    build:
+      context: ./bookingPlatform/ProductService/ProductService.API
+      dockerfile: Dockerfile
+    container_name: product-service
+    restart: unless-stopped
+    ports:
+      - "5041:8080"
+    depends_on:
+      - order-service
+      - adapter-factory
+      - abc-mock-service
+      - cde-mock-service
+      - sql-server-db
+    environment:
+      - ConnectionStrings__productConnection=Data Source=sql-server-db,1433;Initial Catalog=Products;User Id=sa;Password=SPAxim1@;TrustServerCertificate=True
+    volumes:
+      - ./bookingPlatform/ProductService/ProductService.API/wwwroot:/app/wwwroot
+    networks:
+      - booking-network
+
+
+  core-gateway:
+    build:
+      context: ./bookingPlatform/CoreGateway/CoreGateway.API
+      dockerfile: Dockerfile
+    container_name: core-gateway
+    restart: unless-stopped
+    ports:
+      - "5010:8080"
+    depends_on:
+      - sql-server-db
+      - adapter-factory
+      - abc-mock-service
+      - cde-mock-service
+      - order-service
+      - cart-service
+      - product-service
+    networks:
+      - booking-network
+
+  user-service:
+    build:
+      context: ./bookingPlatform/UserService/userService.Api
+      dockerfile: Dockerfile
+    container_name: user-service
+    restart: unless-stopped
+    ports:
+      - "5134:8080"
+    depends_on:
+      - sql-server-db
+    networks:
+      - booking-network
+
+  frontend:
+    build:
+      context: ./frontend/bookingSite
+      dockerfile: Dockerfile
+    container_name: frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - core-gateway
+    environment:
+      - ConnectionStrings__userManagementString=Data Source=sql-server-db,1433;Initial Catalog=Products;User Id=sa;Password=SPAxim1@;TrustServerCertificate=True
+    networks:
+      - booking-network
+
+volumes:
+  sqlserver-data:

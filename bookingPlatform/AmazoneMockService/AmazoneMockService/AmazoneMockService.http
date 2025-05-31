@@ -1,0 +1,6 @@
+@AmazoneMockService_HostAddress = http://localhost:5015
+
+GET {{AmazoneMockService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

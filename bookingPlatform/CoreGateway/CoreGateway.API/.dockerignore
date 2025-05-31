@@ -1,0 +1,27 @@
+# Ignore build output
+bin/
+obj/
+
+# Ignore user-specific files
+*.user
+*.vspscc
+*.vssscc
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Ignore local settings and IDE files
+.vscode/
+.idea/
+*.log
+
+# Ignore Docker-related leftovers
+Dockerfile.*
+docker-compose.*
+.dockerignore
+
+# Ignore OS or cloud-specific files
+*.db
+*.DS_Store
+Thumbs.db
+.env

@@ -1,0 +1,6 @@
+@EbayMockService_HostAddress = http://localhost:5239
+
+GET {{EbayMockService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
