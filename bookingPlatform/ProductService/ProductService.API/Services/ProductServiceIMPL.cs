@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using OrderService.API.DTO;
 using ProductService.API.DTO;
 using ProductService.API.Models.Entities;
@@ -15,16 +16,21 @@ namespace ProductService.API.Services
         private readonly IProductRepo _productRepo;
         private readonly ILogger<ProductServiceImpl> _logger;
         private readonly HttpClient _httpClient;
+        private readonly ServiceUrls _urls;
+
 
 
         public ProductServiceImpl(
           IProductRepo productRepo,
-          ILogger<ProductServiceImpl> logger
+          ILogger<ProductServiceImpl> logger,
+          IOptions<ServiceUrls> options
+
          )
         {
             _productRepo = productRepo;
             _httpClient = new HttpClient();
             _logger = logger;
+            _urls = options.Value;
         }
 
         public async Task<bool> importProducts(ProductDTO productDto)
@@ -94,7 +100,7 @@ namespace ProductService.API.Services
         {
             try
             {
-                var response = await _httpClient.GetAsync("http://adapter-factory:8080/api/v1/Adapter");
+                var response = await _httpClient.GetAsync($"{_urls.AdapterFactoryService}/api/v1/Adapter");
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -331,10 +337,12 @@ namespace ProductService.API.Services
                 {
                     ProductEntity product = await _productRepo.getExternalProductByIdAsync(orders.ProductId);
                     bool isProductInternal = await _productRepo.checkInternalSystemProduct(orders.ProductId);
+                    Console.WriteLine("product "+product+"and isorductinternal "+isProductInternal);
                     if (product != null && isProductInternal)
                     {
                         if (product.availableQuantity >= orders.quantity)
                         {
+                            
                             await _productRepo.sellProducts(product.Id, (product.availableQuantity - orders.quantity));
                             return true;
                         }
@@ -344,7 +352,7 @@ namespace ProductService.API.Services
                         
                             var json = JsonSerializer.Serialize(orders);
                             var order = new StringContent(json, Encoding.UTF8, "application/json");
-                            var response = await _httpClient.PostAsync($"http://adapter-factory:8080/api/v1/Adapter", order);
+                            var response = await _httpClient.PostAsync($"{_urls.AdapterFactoryService}/api/v1/Adapter", order);
                             if (response.IsSuccessStatusCode)
                             {
                                 Console.WriteLine("Product updated successfully.");
@@ -488,35 +496,45 @@ namespace ProductService.API.Services
 
         public async Task<bool> GetCheckout(CheckoutDTO order)
         {
-            bool isProductInternal = await _productRepo.checkInternalSystemProduct(order.ProductId);
-            if (isProductInternal)
+            try
             {
-                ProductEntity productEntity = await _productRepo.chekout(order);
-                if (productEntity.availableQuantity >= order.quantity)
+                bool isProductInternal = await _productRepo.checkInternalSystemProduct(order.ProductId);
+                if (isProductInternal)
                 {
-                    return true;
+                    ProductEntity productEntity = await _productRepo.chekout(order);
+                    if (productEntity.availableQuantity >= order.quantity)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
-                    return false;
-                }
-            }
-            else
-            {
-                var json = JsonSerializer.Serialize(order);
-                var orderDetails = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync("http://adapter-factory:8080/api/v1/adapter/checkout", orderDetails);
-                if (response.IsSuccessStatusCode)
-                {
-                    return true;
-                }
-                else
-                {
-                    Console.WriteLine($"Failed to update product: {response.StatusCode}");
-                    return false;
-                }
+                    var json = JsonSerializer.Serialize(order);
+                    var orderDetails = new StringContent(json, Encoding.UTF8, "application/json");
+                    var response = await _httpClient.PostAsync($"{_urls.AdapterFactoryService}/api/v1/adapter/checkout", orderDetails);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Failed to update product: {response.StatusCode}");
+                        return false;
+                    }
 
+                }
             }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    "error occur");
+            }
+
+
         }
 
         public async Task<bool> updateProduct(ProductDTO productDto)

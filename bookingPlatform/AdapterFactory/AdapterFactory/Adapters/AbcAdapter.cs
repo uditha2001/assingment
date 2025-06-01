@@ -2,6 +2,7 @@
 using AdapterFactory.Service;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using ProductService.API.DTO;
 using System.Text;
 using System.Text.Json;
@@ -11,11 +12,13 @@ namespace AdapterFactory.Adapters
     public class AbcAdapter : IAdapter
     {
         private readonly HttpClient _httpClient;
-      
-        public AbcAdapter(HttpClient httpClient)
+        private readonly ServiceUrls _urls;
+
+
+        public AbcAdapter(HttpClient httpClient, IOptions<ServiceUrls> options)
         {
             _httpClient = httpClient;
-
+            _urls = options.Value;
         }
 
         public bool checkout()
@@ -27,7 +30,7 @@ namespace AdapterFactory.Adapters
         {
             try
             {
-                var response = await _httpClient.GetAsync("http://abc-mock-service:8080/api/v1/products");
+                var response = await _httpClient.GetAsync($"{_urls.AbcMockService}/api/v1/products");
 
                 if (!response.IsSuccessStatusCode)
                 {

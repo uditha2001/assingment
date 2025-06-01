@@ -1,4 +1,5 @@
 ﻿using AdapterFactory.Adapters;
+using Microsoft.Extensions.Options;
 using OrderService.API.DTO;
 using ProductService.API.DTO;
 using System.Reflection.Metadata.Ecma335;
@@ -13,13 +14,15 @@ namespace AdapterFactory.Service
         private readonly IServiceProvider _serviceProvider;
         private readonly HttpClient _httpClient;
         private readonly ILogger<AdapterFactoryServiceIMPL> _logger;
+        private readonly ServiceUrls _urls;
         private String[] serviceIdentifiers={ "abc", "cde" };
 
-        public AdapterFactoryServiceIMPL(IServiceProvider serviceProvider,HttpClient httpClient, ILogger<AdapterFactoryServiceIMPL> logger)
+        public AdapterFactoryServiceIMPL(IServiceProvider serviceProvider,HttpClient httpClient, ILogger<AdapterFactoryServiceIMPL> logger, IOptions<ServiceUrls> options)
         {
             _serviceProvider = serviceProvider;
             _httpClient = httpClient;
             _logger = logger;
+            _urls = options.Value;
         }
 
 
@@ -60,7 +63,7 @@ namespace AdapterFactory.Service
                 List<ProductDTO> products = new List<ProductDTO>();
                     _logger.LogInformation("Calling ProductService with ID: {ProductId}", order.ProductId);
 
-                    var response = await _httpClient.GetAsync($"http://product-service:8080/api/v1/product/byId?productId={order.ProductId}");
+                    var response = await _httpClient.GetAsync($"{_urls.ProductService}/api/v1/product/byId?productId={order.ProductId}");
 
                     if (!response.IsSuccessStatusCode)
                     {
@@ -94,7 +97,8 @@ namespace AdapterFactory.Service
         {
             try
             {
-                var response = await _httpClient.GetAsync($"http://product-service:8080/api/v1/product/byId?productId={order.ProductId}");
+                Console.WriteLine("hello products " + _urls.ProductService);
+                var response = await _httpClient.GetAsync($"{_urls.ProductService}/api/v1/product/byId?productId={order.ProductId}");
 
                 if (!response.IsSuccessStatusCode)
                 {

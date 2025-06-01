@@ -2,6 +2,7 @@
 using CartService.API.Model.Entities;
 using CartService.API.repository.interfaces;
 using CartService.API.services.interfaces;
+using Microsoft.Extensions.Options;
 using OrderService.API.DTO;
 using System.Text;
 using System.Text.Json;
@@ -12,12 +13,15 @@ namespace CartService.API.services
     {
         private readonly ICartRepository _cartRepository;
         private readonly HttpClient _httpClient;
+        private readonly ServiceUrls _urls;
 
 
-        public CartServiceIMPL(ICartRepository cartRepository, HttpClient httpClient)
+
+        public CartServiceIMPL(ICartRepository cartRepository, HttpClient httpClient, IOptions<ServiceUrls> options)
         {
             _cartRepository = cartRepository;
             _httpClient = httpClient;
+            _urls = options.Value;
         }
 
         public async Task<bool> AddItemToCartAsync(CartItemDTO item)
@@ -129,7 +133,7 @@ namespace CartService.API.services
 
                 var json = JsonSerializer.Serialize(orderDTO);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync("http://localhost:5062/api/v1/order", content);
+                var response = await _httpClient.PostAsync($"{_urls.OrderService}/api/v1/order", content);
 
                 if (!response.IsSuccessStatusCode)
                     throw new HttpRequestException($"Order submission failed. StatusCode: {response.StatusCode}");

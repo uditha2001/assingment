@@ -1,19 +1,24 @@
-﻿using CoreGateway.API.Service.Interfaces;
+﻿using CoreGateway.API.dto;
+using CoreGateway.API.Service.Interfaces;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using CoreGateway.API.dto;
 namespace CoreGateway.API.Service
 {
     public class AuthServiceIMPL : IAuthService
     {
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
-        public AuthServiceIMPL(HttpClient httpClient, IConfiguration configuration)
+        private readonly ServiceUrls _urls;
+
+
+        public AuthServiceIMPL(HttpClient httpClient, IConfiguration configuration, IOptions<ServiceUrls> options)
         {
             _httpClient = httpClient;
             _configuration = configuration;
+            _urls = options.Value;
         }
 
         public string GenerateJwtToken(string username)
@@ -43,7 +48,7 @@ namespace CoreGateway.API.Service
         {
             try
             {
-                var url = $"http://user-service:8080/api/v1/user/login?userName={Uri.EscapeDataString(userName)}&password={Uri.EscapeDataString(password)}";
+                var url = $"{_urls.UserService}/api/v1/user/login?userName={Uri.EscapeDataString(userName)}&password={Uri.EscapeDataString(password)}";
                 var response = await _httpClient.PostAsync(url, null);
                 if (response.IsSuccessStatusCode)
                 {

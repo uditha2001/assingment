@@ -24,6 +24,8 @@ builder.Services.AddHttpClient<ICartService, CartServiceIMPL>()
             handledEventsAllowedBeforeBreaking: 3,
             durationOfBreak: TimeSpan.FromSeconds(30)));
 
+builder.Services.Configure<ServiceUrls>(
+    builder.Configuration.GetSection("ServiceUrls"));
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())

@@ -1,5 +1,6 @@
 ﻿using AdapterFactory.Service;
 using CdeMockService.DTO;
+using Microsoft.Extensions.Options;
 using ProductService.API.DTO;
 
 
@@ -8,10 +9,13 @@ namespace AdapterFactory.Adapters
     public class CdeAdapter : IAdapter
     {
         private readonly HttpClient _httpClient;
+        private readonly ServiceUrls _urls;
 
-        public CdeAdapter(HttpClient httpClient)
+
+        public CdeAdapter(HttpClient httpClient, IOptions<ServiceUrls> options)
         {
             _httpClient = httpClient;
+            _urls = options.Value;
         }
 
         public ProductDTO MapCdeToProduct(CdeDTO cdeDTO)
@@ -73,7 +77,7 @@ namespace AdapterFactory.Adapters
         {
             try
             {
-                var response = await _httpClient.GetAsync("http://cde-mock-service:8080/api/v1/product");
+                var response = await _httpClient.GetAsync($"{_urls.CdeMockService}/api/v1/product");
 
                 if (!response.IsSuccessStatusCode)
                 {

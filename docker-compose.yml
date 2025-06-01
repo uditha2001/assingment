@@ -31,6 +31,8 @@ services:
       - sql-server-db
     networks:
       - booking-network
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
 
   abc-mock-service:
     build:
@@ -44,6 +46,8 @@ services:
       - sql-server-db
     networks:
       - booking-network
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
 
   cde-mock-service:
     build:
@@ -57,6 +61,8 @@ services:
       - sql-server-db
     networks:
       - booking-network
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
 
   order-service:
     build:
@@ -69,7 +75,7 @@ services:
     depends_on:
       - sql-server-db
     environment:
-      - ConnectionStrings__orderDbString=Data Source=sql-server-db,1433;Initial Catalog=Order;User Id=sa;Password=SPAxim1@;TrustServerCertificate=True
+      - ASPNETCORE_ENVIRONMENT=Production
     networks:
       - booking-network
 
@@ -88,7 +94,7 @@ services:
       - cde-mock-service
       - sql-server-db
     environment:
-      - ConnectionStrings__cartConnectionString=Data Source=sql-server-db,1433;Initial Catalog=cart;User Id=sa;Password=SPAxim1@;TrustServerCertificate=True
+      - ASPNETCORE_ENVIRONMENT=Production
     networks:
       - booking-network
 
@@ -107,7 +113,7 @@ services:
       - cde-mock-service
       - sql-server-db
     environment:
-      - ConnectionStrings__productConnection=Data Source=sql-server-db,1433;Initial Catalog=Products;User Id=sa;Password=SPAxim1@;TrustServerCertificate=True
+      - ASPNETCORE_ENVIRONMENT=Production
     volumes:
       - ./bookingPlatform/ProductService/ProductService.API/wwwroot:/app/wwwroot
     networks:
@@ -132,6 +138,8 @@ services:
       - product-service
     networks:
       - booking-network
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
 
   user-service:
     build:
@@ -145,7 +153,8 @@ services:
       - sql-server-db
     networks:
       - booking-network
-
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
   frontend:
     build:
       context: ./frontend/bookingSite

@@ -7,6 +7,7 @@ using ProductService.API.Services.serviceInterfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -19,15 +20,19 @@ builder.Services.AddScoped<IProductContentService, ProductContentServiceIMPL>();
 builder.Services.AddScoped<IProductContentRepository, ProductContentRepositoryIMPL>();
 builder.Services.AddScoped<IProductAttributeService, ProductAttributeServiceIMPL>();
 builder.Services.AddScoped<IProductAttriuteRepository, ProductAttributeRepositoryIMPL>();
+builder.Services.Configure<ServiceUrls>(builder.Configuration.GetSection("ServiceUrls"));
+
 
 // Database
 builder.Services.AddDbContext<ProductDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("productConnection")));
 
+var serviceUrls = builder.Configuration.GetSection("ServiceUrls").Get<ServiceUrls>();
 builder.WebHost
     .UseKestrel()
     .UseContentRoot(Directory.GetCurrentDirectory())
-    .UseUrls("http://0.0.0.0:8080");
+    .UseUrls(serviceUrls.RedirectUrl);
+
 
 var app = builder.Build();
 

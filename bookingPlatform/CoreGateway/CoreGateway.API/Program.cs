@@ -28,6 +28,8 @@ builder.Services.AddCors(options =>
                   .AllowCredentials();
         });
 });
+builder.Services.Configure<ServiceUrls>(
+    builder.Configuration.GetSection("ServiceUrls"));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
