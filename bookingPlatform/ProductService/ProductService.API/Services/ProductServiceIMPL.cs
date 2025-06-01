@@ -335,10 +335,9 @@ namespace ProductService.API.Services
             {
                 foreach (CheckoutDTO orders in orderDto)
                 {
-                    ProductEntity product = await _productRepo.getExternalProductByIdAsync(orders.ProductId);
+                    ProductEntity product = await _productRepo.GetProductById(orders.ProductId);
                     bool isProductInternal = await _productRepo.checkInternalSystemProduct(orders.ProductId);
-                    Console.WriteLine("product "+product+"and isorductinternal "+isProductInternal);
-                    if (product != null && isProductInternal)
+                    if (isProductInternal)
                     {
                         if (product.availableQuantity >= orders.quantity)
                         {
