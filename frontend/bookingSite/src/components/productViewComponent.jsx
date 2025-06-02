@@ -3,6 +3,13 @@ import useCartApi from "../api/useCartApi";
 
 const BASE_URL = "http://localhost:5010/";
 
+/**
+ * StarRating
+ *
+ * Displays a 5-star rating based on the provided rate.
+ * Props:
+ * - rate: number - The rating value (0-5).
+ */
 const StarRating = ({ rate }) => {
   const stars = [];
   for (let i = 1; i <= 5; i++) {
@@ -15,6 +22,23 @@ const StarRating = ({ rate }) => {
   return <div className="flex">{stars}</div>;
 };
 
+/**
+ * ProductViewComponent
+ *
+ * Card component for displaying product summary, image/video, and actions.
+ * Props:
+ * - id: number - Product ID.
+ * - name: string - Product name.
+ * - description: string - Product description.
+ * - owner: string - Product owner.
+ * - availableQuantity: number - Quantity available.
+ * - rate: number - Product rating.
+ * - price: number - Product price.
+ * - currency: string - Currency symbol.
+ * - contents: array - Media contents (images/videos).
+ * - setSuccess: function - Callback for success messages.
+ * - setError: function - Callback for error messages.
+ */
 const ProductViewComponent = ({
   id,
   name,
@@ -25,27 +49,29 @@ const ProductViewComponent = ({
   price,
   currency,
   contents = [],
-  setSuccess, 
+  setSuccess,
   setError
 }) => {
   const { addToCart } = useCartApi();
+
+  // Selects the first image or video as the main content
   const mainContent = contents.find(
     (c) =>
       (c.type && c.type.toLowerCase().startsWith("image")) ||
       (c.type && c.type.toLowerCase().startsWith("video"))
   );
 
+  // Resolves content URL for images/videos
   const getContentUrl = (url) => {
     if (!url) return "";
     if (url.startsWith("http://") || url.startsWith("https://")) {
       return url;
     }
-    console.log("Normalizing URL:", BASE_URL + url.replace(/^\/+/, ""));
     return BASE_URL + url.replace(/^\/+/, "");
   };
 
-  // Add to cart handler
-  const handleAddToCart =async () => {
+  // Handles adding the product to the cart
+  const handleAddToCart = async () => {
     const user = JSON.parse(localStorage.getItem("user"));
     const cartItem = {
       ProductId: id,
@@ -53,17 +79,13 @@ const ProductViewComponent = ({
       userId: user?.userId,
       itemTotalPrice: price,
     };
-    try{
-      const response=await addToCart(cartItem);
-      console.log("Add to cart response:", response);
-      if(response.status === 200) {
-        console.log("Item added to cart:", response.data);
+    try {
+      const response = await addToCart(cartItem);
+      if (response.status === 200) {
         setSuccess("Item added to cart successfully!");
       }
-    }
-    catch (error) {
+    } catch (error) {
       setError("Failed to add item to cart. Please try again.");
-      console.error("Error adding to cart:", error);
     }
   };
 

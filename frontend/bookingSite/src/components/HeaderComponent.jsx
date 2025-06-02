@@ -3,13 +3,23 @@ import { FiSearch, FiShoppingCart, FiMenu, FiX, FiUser } from "react-icons/fi";
 import ButtonComponent from "./ButtonComponent";
 import { useNavigate } from "react-router-dom";
 
+/**
+ * HeaderComponent
+ *
+ * Renders the main navigation header for unauthenticated users.
+ * Features:
+ * - Responsive navigation for desktop and mobile
+ * - Search bar (desktop & mobile)
+ * - Cart and user icons
+ * - Hamburger menu for mobile navigation
+ */
 const HeaderComponent = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
-  const [searchTerm, setSearchTerm] = useState(""); // Add searchTerm state
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
-  // Search handler
+  // Handles search form submission and navigation
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTerm.trim()) {

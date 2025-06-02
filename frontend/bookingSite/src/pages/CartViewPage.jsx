@@ -8,9 +8,14 @@ import ErrorMessage from "../components/ErrorMessage";
 
 const BASE_URL = "http://localhost:5010/";
 
+/**
+ * CartViewPage
+ *
+ * Displays the user's shopping cart, allowing quantity updates, item removal, and checkout.
+ * Fetches product details for each cart item and manages cart state and user feedback.
+ */
 const CartViewPage = () => {
-  const { getCartByUserId, removeItemFromCart, updateCartQuantities } =
-    useCartApi();
+  const { getCartByUserId, removeItemFromCart, updateCartQuantities } = useCartApi();
   const { getProductById } = useProductApi();
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState([]);
@@ -21,7 +26,7 @@ const CartViewPage = () => {
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [productDetails, setProductDetails] = useState({});
 
-  // Move fetchCart outside useEffect so you can call it anywhere
+  // Fetches the cart and product details for all items
   const fetchCart = async () => {
     try {
       const user = JSON.parse(localStorage.getItem("user"));
@@ -31,7 +36,6 @@ const CartViewPage = () => {
         if (response.status === 200) {
           setCartItems(response.data);
           setEditedQuantities({});
-          // Fetch product details for all items
           const details = {};
           await Promise.all(
             response.data.map(async (item) => {
@@ -57,7 +61,7 @@ const CartViewPage = () => {
     fetchCart();
   }, [successMessage]);
 
-  // Handle quantity change
+  // Handles quantity input changes for cart items
   const handleQuantityChange = (cartItemId, newQty) => {
     setEditedQuantities((prev) => ({
       ...prev,
@@ -65,7 +69,7 @@ const CartViewPage = () => {
     }));
   };
 
-  // Prepare update array and send to backend
+  // Updates the cart quantities in the backend
   const handleUpdateCart = async () => {
     const updateArray = Object.entries(editedQuantities).map(
       ([cartItemId, qty]) => {
@@ -82,7 +86,7 @@ const CartViewPage = () => {
       if (response.status === 200) {
         setSuccessMessage("Cart updated successfully!");
         setEditedQuantities({});
-        await fetchCart(); // <-- Refresh cart immediately after update
+        await fetchCart();
       } else {
         setErrorMessage("Failed to update cart.");
       }
@@ -91,6 +95,7 @@ const CartViewPage = () => {
     }
   };
 
+  // Removes an item from the cart
   const handleDelete = async (itemId) => {
     try {
       const response = await removeItemFromCart(itemId);
@@ -106,6 +111,7 @@ const CartViewPage = () => {
     }
   };
 
+  // Returns the first image URL from product contents
   const getFirstImageUrl = (contents) => {
     if (!contents || !Array.isArray(contents)) return null;
     const img = contents.find(
@@ -117,6 +123,7 @@ const CartViewPage = () => {
     return BASE_URL + img.url.replace(/^\/+/, "");
   };
 
+  // Calculates the total price for the cart
   const total = cartItems.reduce((sum, item) => {
     const product = productDetails[item.productId] || {};
     const unitPrice = product.price ?? 0;

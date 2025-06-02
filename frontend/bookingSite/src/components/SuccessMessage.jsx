@@ -1,11 +1,21 @@
 import React, { useEffect } from "react";
 import { FiCheckCircle } from "react-icons/fi";
 
+/**
+ * SuccessMessage
+ *
+ * Displays a success alert with a message and optional close button.
+ * Automatically closes after 30 seconds if onClose is provided.
+ *
+ * Props:
+ * - message: string - The success message to display.
+ * - onClose?: () => void - Optional callback to close the alert.
+ */
 const SuccessMessage = ({ message, onClose }) => {
     useEffect(() => {
         const timer = setTimeout(() => {
             if (onClose) onClose();
-        }, 30000); // 30 seconds
+        }, 30000);
         return () => clearTimeout(timer);
     }, [onClose]);
 

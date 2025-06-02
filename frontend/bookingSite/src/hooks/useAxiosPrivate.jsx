@@ -2,7 +2,15 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import privateAxios from "../api/Axios";
 
-
+/**
+ * useAxiosPrivate
+ *
+ * Custom hook that returns an Axios instance configured with authentication headers and error handling.
+ * Automatically attaches the user's access token to requests and redirects to login on 401 errors.
+ *
+ * Returns:
+ * - AxiosInstance: Configured Axios instance for authenticated API calls.
+ */
 const useAxiosPrivate = () => {
     const navigate = useNavigate();
 
@@ -19,7 +27,6 @@ const useAxiosPrivate = () => {
             (error) => Promise.reject(error)
         );
 
-        // Add response interceptor
         const responseInterceptor = privateAxios.interceptors.response.use(
             (response) => response,
             async (error) => {

@@ -1,13 +1,22 @@
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
+/**
+ * EditProductCard
+ *
+ * Displays a product card with image, details, attributes, and action buttons for editing and deleting.
+ *
+ * Props:
+ * - product: Product object containing product details and attributes.
+ * - onDelete: Function to handle product deletion.
+ */
 const EditProductCard = ({
     product,
     onDelete,
 }) => {
     const navigate = useNavigate();
 
-    // Show first image if available
+    // Use the first product image if available, otherwise show a placeholder
     const imageUrl =
         product.Contents && product.Contents.length > 0
             ? product.Contents[0].url

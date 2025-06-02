@@ -1,5 +1,16 @@
 import React from "react";
 
+/**
+ * ButtonComponent
+ *
+ * A reusable button component with customizable styles and behavior.
+ *
+ * Props:
+ * - children: ReactNode - Button label or content.
+ * - onClick: () => void (optional) - Click event handler.
+ * - className: string (optional) - Additional CSS classes.
+ * - type: "button" | "submit" | "reset" (optional) - Button type, defaults to "button".
+ */
 interface ButtonComponentProps {
     children: React.ReactNode;
     onClick?: () => void;

@@ -1,11 +1,21 @@
 import React, { useEffect } from "react";
 import { FiAlertCircle } from "react-icons/fi";
 
+/**
+ * ErrorMessage
+ *
+ * Displays an error alert with a message and optional close button.
+ * Automatically closes after 30 seconds if onClose is provided.
+ *
+ * Props:
+ * - message: string - The error message to display.
+ * - onClose?: () => void - Optional callback to close the alert.
+ */
 const ErrorMessage = ({ message, onClose }) => {
     useEffect(() => {
         const timer = setTimeout(() => {
             if (onClose) onClose();
-        }, 30000); // 30 seconds
+        }, 30000);
         return () => clearTimeout(timer);
     }, [onClose]);
 

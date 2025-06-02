@@ -3,7 +3,15 @@ import { useNavigate } from "react-router-dom";
 import useProductApi from "../api/productAPI/useProductApi";
 import { useState } from "react";
 
-// Simple confirmation dialog component
+/**
+ * ConfirmDialog
+ * 
+ * Modal dialog for confirming destructive actions.
+ * Props:
+ * - message: string - Confirmation message.
+ * - onConfirm: () => void - Called when user confirms.
+ * - onCancel: () => void - Called when user cancels.
+ */
 const ConfirmDialog = ({ message, onConfirm, onCancel }) => (
   <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
     <div className="bg-white p-6 rounded shadow-lg">
@@ -28,6 +36,22 @@ const ConfirmDialog = ({ message, onConfirm, onCancel }) => (
 
 const BASE_URL = "http://localhost:5010/";
 
+/**
+ * ProductDetailsView
+ *
+ * Displays detailed information about a product, including images, attributes, and actions for editing or deleting.
+ * Supports optional callbacks for editing/deleting product, images, and attributes.
+ *
+ * Props:
+ * - product: Product object to display.
+ * - categories: Array of category objects for lookup.
+ * - onDeleteProduct: Callback for product deletion.
+ * - onEditProduct: Callback for editing the product.
+ * - onDeleteContent: Callback for deleting an image.
+ * - onDeleteAttribute: Callback for deleting an attribute.
+ * - onEditContent: Callback for editing an image.
+ * - onEditAttribute: Callback for editing an attribute.
+ */
 const ProductDetailsView = ({
     product,
     categories = [],
@@ -42,10 +66,12 @@ const ProductDetailsView = ({
     const { deleteProduct } = useProductApi();
     const [showConfirm, setShowConfirm] = useState(false);
 
+    // Triggers confirmation dialog for product deletion
     const handleDelete = async () => {
         setShowConfirm(true);
     };
 
+    // Confirms and performs product deletion
     const confirmDelete = async () => {
         setShowConfirm(false);
         const response = await deleteProduct(product.id);
@@ -60,31 +86,30 @@ const ProductDetailsView = ({
         return <div className="text-center text-gray-500 py-8">No product selected.</div>;
     }
 
+    // Resolves category name from product or categories list
     const categoryName =
         product.categoryName ||
         categories.find((c) => c.id === Number(product.productCategoryId))?.name ||
         "No Category";
 
-        const getContentUrl = (url) => {
-        console.log("getContentUrl", url);
-          if (!url) return "";
-          if (url.startsWith("http://") || url.startsWith("https://")) {
-            console.log("External URL", url);
+    // Returns a full URL for content, handling both absolute and relative paths
+    const getContentUrl = (url) => {
+        if (!url) return "";
+        if (url.startsWith("http://") || url.startsWith("https://")) {
             return url;
-          }
-          console.log("BASE_URL", BASE_URL+url.replace(/^\/+/, ""));
-          return BASE_URL + url.replace(/^\/+/, "");
-        };
-    
+        }
+        return BASE_URL + url.replace(/^\/+/, "");
+    };
 
+    // Navigates to edit product page with product state
     const handleEdit = () => {
         navigate("/editProducts", { state: { product } });
     };
 
+    // Filters product images
     const images = Array.isArray(product.contents)
       ? product.contents.filter(c => c.type && c.type.toLowerCase().startsWith("image"))
       : [];
-    console.log("Filtered images", images);
 
     return (
         <div className="max-w-2xl mx-auto bg-white rounded-lg shadow p-6">
@@ -129,7 +154,7 @@ const ProductDetailsView = ({
             <div className="mb-2">
                 <span className="font-semibold">Owner:</span> {product.owner}
             </div>
-            {/* All Images */}
+            {/* Images */}
             <div className="mb-4">
                 <span className="font-semibold">Images:</span>
                 <div className="flex flex-wrap gap-3 mt-2">

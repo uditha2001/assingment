@@ -1,10 +1,21 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { FiSearch, FiShoppingCart, FiMenu, FiX } from "react-icons/fi";
 import ButtonComponent from "./ButtonComponent";
 import { useNavigate } from "react-router-dom";
 import UserSettingOptions from "./UserSettingOptions";
 import useCartApi from "../api/useCartApi";
 
+/**
+ * AuhtenticatedHeader
+ *
+ * Renders the main navigation header for authenticated users.
+ * Features:
+ * - Responsive navigation (desktop & mobile)
+ * - Search bar (desktop & mobile)
+ * - Cart icon with item count badge
+ * - User avatar with dropdown for settings/logout
+ * - Hamburger menu for mobile navigation
+ */
 const AuhtenticatedHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -19,8 +30,8 @@ const AuhtenticatedHeader = () => {
   const user = JSON.parse(localStorage.getItem("user") || "null");
   const userImage = user?.imageUrl || "https://ui-avatars.com/api/?name=User";
 
-  // Close user menu when clicking outside
-  React.useEffect(() => {
+  // Handles closing the user dropdown when clicking outside
+  useEffect(() => {
     function handleClickOutside(event) {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setShowUserOptions(false);
@@ -36,7 +47,8 @@ const AuhtenticatedHeader = () => {
     };
   }, [showUserOptions]);
 
-  React.useEffect(() => {
+  // Fetch cart item count on mount or when user changes
+  useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "null");
     const userId = user?.userId;
     if (userId) {
@@ -44,19 +56,22 @@ const AuhtenticatedHeader = () => {
         if (res.status === 200) setCartCount(res.data);
       });
     }
-    setHideCartCount(false); // Reset badge when header re-mounts or user changes
+    setHideCartCount(false);
   }, [getCartItemCount]);
 
+  // Logs out the user and navigates to login
   const handleLogout = () => {
     localStorage.removeItem("user");
     navigate("/login");
   };
 
+  // Navigates to user settings
   const handleSettings = () => {
     setShowUserOptions(false);
     navigate("/settings");
   };
 
+  // Handles search form submission
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTerm.trim()) {
@@ -69,9 +84,7 @@ const AuhtenticatedHeader = () => {
   return (
     <header className="bg-white text-black p-4 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.15)] sticky top-0 z-[999]">
       <div className="flex items-center justify-between">
-        {/* Site Title */}
         <h1 className="text-2xl font-bold">BookingPlatForm</h1>
-        {/* Desktop Nav */}
         <nav className="hidden sm:flex space-x-8 items-center">
           <ButtonComponent
             className="border-0 hover:border-b-2 hover:border-black rounded-none transition-all"
@@ -98,9 +111,7 @@ const AuhtenticatedHeader = () => {
             Orders
           </ButtonComponent>
         </nav>
-        {/* Right Side Icons and Search Bar */}
         <div className="flex items-center space-x-4 relative">
-          {/* Search Bar (desktop only) */}
           <form className="hidden sm:flex items-center" onSubmit={handleSearch}>
             <input
               type="text"
@@ -113,7 +124,6 @@ const AuhtenticatedHeader = () => {
               <FiSearch className="text-2xl text-black ml-2" />
             </button>
           </form>
-          {/* Search Icon (mobile) */}
           <button
             className="sm:hidden focus:outline-none"
             onClick={() => setShowSearch((prev) => !prev)}
@@ -121,12 +131,11 @@ const AuhtenticatedHeader = () => {
           >
             <FiSearch className="text-2xl text-black" />
           </button>
-          {/* Cart Icon */}
           <button
             className="focus:outline-none relative"
             aria-label="Cart"
             onClick={() => {
-              setHideCartCount(true); // Hide the badge
+              setHideCartCount(true);
               navigate("/cart");
             }}
           >
@@ -137,7 +146,6 @@ const AuhtenticatedHeader = () => {
               </span>
             )}
           </button>
-          {/* User Image with dropdown */}
           <div className="relative" ref={userMenuRef}>
             <img
               src={userImage}
@@ -154,7 +162,6 @@ const AuhtenticatedHeader = () => {
               </div>
             )}
           </div>
-          {/* Hamburger Menu (mobile) */}
           <button
             className="sm:hidden focus:outline-none ml-2"
             onClick={() => setMenuOpen((prev) => !prev)}
@@ -168,7 +175,6 @@ const AuhtenticatedHeader = () => {
           </button>
         </div>
       </div>
-      {/* Mobile Search Bar */}
       {showSearch && (
         <div className="sm:hidden mt-4 flex items-center">
           <input
@@ -181,7 +187,6 @@ const AuhtenticatedHeader = () => {
           />
         </div>
       )}
-      {/* Mobile Nav */}
       {menuOpen && (
         <div className="sm:hidden mt-4 flex flex-col items-end space-y-2">
           <ButtonComponent
