@@ -23,7 +23,7 @@ namespace AdapterFactory.Adapters
             _urls = options.Value;
         }
 
-        public bool checkout()
+        public bool Checkout()
         {
             return true;
         }
@@ -111,7 +111,7 @@ namespace AdapterFactory.Adapters
             };
         }
 
-        public bool placeOrder()
+        public bool PlaceOrder()
         {
             return true;
         }

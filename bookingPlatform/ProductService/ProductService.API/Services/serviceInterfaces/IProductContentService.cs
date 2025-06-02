@@ -13,7 +13,7 @@ namespace ProductService.API.Services.serviceInterfaces
         /// <returns>
         /// A task representing the asynchronous operation. Returns <c>true</c> if the content was created successfully; otherwise, <c>false</c>.
         /// </returns>
-        public Task<bool> createContent(ProductContentDTO productContentDTO, long ProductId);
+        public Task<bool> CreateContent(ProductContentDTO productContentDTO, long ProductId);
 
      
 
@@ -35,7 +35,7 @@ namespace ProductService.API.Services.serviceInterfaces
         /// <exception cref="Exception">
         /// Logs and returns <c>false</c> if any unexpected error occurs during the deletion process.
         /// </exception>
-        public Task<bool> deleteContent(long id);
+        public Task<bool> DeleteContent(long id);
 
         /// <summary>
         /// Retrieves all content entries associated with the specified product ID.
@@ -45,7 +45,7 @@ namespace ProductService.API.Services.serviceInterfaces
         /// A task representing the asynchronous operation. Returns a list of <see cref="ProductContentDTO"/> objects.
         /// Returns an empty list if an error occurs during retrieval.
         /// </returns>
-        public Task<List<ProductContentDTO>> getAllContent(long productId);
+        public Task<List<ProductContentDTO>> GetAllContent(long productId);
 
         /// <summary>
         /// Maps a <see cref="ProductContentEntity"/> object to a <see cref="ProductContentDTO"/> object.

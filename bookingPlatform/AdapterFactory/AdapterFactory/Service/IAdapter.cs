@@ -6,8 +6,8 @@ namespace AdapterFactory.Service
     {
         string SourceName { get; }
         Task<List<ProductDTO>> GetProductContentsFromExternalServiceAsync();
-        bool placeOrder();
-        bool checkout();
+        bool PlaceOrder();
+        bool Checkout();
 
     }
 

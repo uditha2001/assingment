@@ -46,7 +46,7 @@ namespace CdeMockService.Controllers
         }
 
         [HttpPost]
-        public IActionResult placeOrder()
+        public IActionResult PlaceOrder()
         {
             return Ok("Order placement successful");
         }

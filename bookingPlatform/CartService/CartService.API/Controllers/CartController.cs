@@ -176,12 +176,12 @@ namespace CartService.API.Controllers
         /// Returns HTTP 200 with the count on success, or HTTP 500 if an error occurs.
         /// </returns>
         [HttpGet("count")]
-        public async Task<IActionResult> getCartItemCount([FromQuery]long userId)
+        public async Task<IActionResult> GetCartItemCount([FromQuery]long userId)
         {
             try
             {
                 
-                int count=await _cartService.getCartItemsCount(userId);
+                int count=await _cartService.GetCartItemsCount(userId);
                 return Ok(count);
             }
             catch (Exception)

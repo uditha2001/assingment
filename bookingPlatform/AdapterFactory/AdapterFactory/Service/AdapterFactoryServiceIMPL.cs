@@ -120,7 +120,7 @@ namespace AdapterFactory.Service
                 });
 
                 IAdapter adapter = GetAdapterById(product.provider);
-                return adapter.checkout();
+                return adapter.Checkout();
             }
             catch(Exception ex)
             {

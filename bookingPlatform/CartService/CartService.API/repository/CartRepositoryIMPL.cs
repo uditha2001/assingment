@@ -47,7 +47,7 @@ namespace CartService.API.repository
             return cartItems;
         }
 
-        public async Task<int> getCartItemsCount(long userId)
+        public async Task<int> GetCartItemsCount(long userId)
         {
             return await _dbContext.cartItems
                 .Where(ci => ci.UserId == userId)

@@ -173,11 +173,11 @@ namespace CartService.API.services
             };
         }
 
-        public async Task<int> getCartItemsCount(long userId)
+        public async Task<int> GetCartItemsCount(long userId)
         {
             try
             {
-                return await _cartRepository.getCartItemsCount(userId);
+                return await _cartRepository.GetCartItemsCount(userId);
             }
             catch
             (Exception ex)

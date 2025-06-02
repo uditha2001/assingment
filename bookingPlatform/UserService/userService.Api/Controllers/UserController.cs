@@ -25,7 +25,7 @@ namespace userService.Api.Controllers
         {
             try
             {
-                var user = await _userService.getUsersAsync(id);
+                var user = await _userService.GetUsersAsync(id);
                 return Ok(user);
             }
             catch (Exception ex)
@@ -44,7 +44,7 @@ namespace userService.Api.Controllers
         {
             try
             {
-                var success = await _userService.createUserAsync(user);
+                var success = await _userService.CreateUserAsync(user);
                 if (success)
                     return Ok(new { message = "User created successfully." });
                 else
@@ -67,7 +67,7 @@ namespace userService.Api.Controllers
         {
             try
             {
-                UserDTO result = await _userService.loginUserAsync(userName, password);
+                UserDTO result = await _userService.LoginUserAsync(userName, password);
                 return Ok(result.userId);
             }
             catch (Exception ex)

@@ -15,7 +15,7 @@ namespace ProductService.API.Services.serviceInterfaces
         /// <param name="productAttributesDTOs">List of attribute DTOs to be saved.</param>
         /// <param name="productId">ID of the product to associate attributes with.</param>
         /// <returns>True if creation is successful; otherwise, false.</returns>
-        Task<bool> createAttribute(List<ProductAttributesDTO> productAttributesDTOs,long productId);
+        Task<bool> CreateAttribute(List<ProductAttributesDTO> productAttributesDTOs,long productId);
 
         /// <summary>
         /// Updates a list of product attributes.
@@ -23,14 +23,14 @@ namespace ProductService.API.Services.serviceInterfaces
         /// <param name="productAttributeDTOs">List of updated product attribute DTOs.</param>
         /// <param name="productId">ID of the product to which these attributes belong.</param>
         /// <returns>True if update was successful; otherwise, false.</returns>
-        Task<bool> updateAttribute(List<ProductAttributesDTO> productAttributeDTOs,long productId);
+        Task<bool> UpdateAttribute(List<ProductAttributesDTO> productAttributeDTOs,long productId);
 
         /// <summary>
         /// Deletes a product attribute by its ID if the provider is empty.
         /// </summary>
         /// <param name="attributeId">ID of the attribute to delete.</param>
         /// <returns>True if deletion was successful; otherwise, false.</returns>
-        Task<bool> deleteAttribute(long attributeId);
+        Task<bool> DeleteAttribute(long attributeId);
 
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace ProductService.API.Services.serviceInterfaces
         /// </summary>
         /// <param name="productId">The product ID for which attributes are to be fetched.</param>
         /// <returns>List of <see cref="ProductAttributesDTO"/>.</returns>
-        Task<List<ProductAttributesDTO>> getAllAttributes(long ProductId);
+        Task<List<ProductAttributesDTO>> GetAllAttributes(long ProductId);
 
         /// <summary>
         /// Maps a <see cref="ProductAttributesDTO"/> to a <see cref="ProductAttributesEntity"/>.

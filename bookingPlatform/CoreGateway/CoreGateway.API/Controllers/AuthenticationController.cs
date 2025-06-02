@@ -27,7 +27,7 @@ namespace CoreGateway.API.Controllers
         //    return Unauthorized();
         //}
         [HttpPost]
-        public async Task<IActionResult> loginUser([FromQuery] string userName, [FromQuery] string password)
+        public async Task<IActionResult> LoginUser([FromQuery] string userName, [FromQuery] string password)
         {
             try
             {

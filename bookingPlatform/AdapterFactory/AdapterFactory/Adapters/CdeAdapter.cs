@@ -100,12 +100,12 @@ namespace AdapterFactory.Adapters
                 return new List<ProductDTO>();
             }
         }
-        public bool placeOrder()
+        public bool PlaceOrder()
         {
             return true;
         }
 
-        public bool checkout()
+        public bool Checkout()
         {
             return true;
         }

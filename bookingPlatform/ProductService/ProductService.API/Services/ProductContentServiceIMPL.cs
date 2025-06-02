@@ -27,7 +27,7 @@ namespace ProductService.API.Services
 
         }
 
-        public async Task<bool> createContent(ProductContentDTO productContentDTO, long productId)
+        public async Task<bool> CreateContent(ProductContentDTO productContentDTO, long productId)
         {
             try
             {
@@ -42,7 +42,7 @@ namespace ProductService.API.Services
             }
         }
 
-        public async Task<bool> deleteContent(long id)
+        public async Task<bool> DeleteContent(long id)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace ProductService.API.Services
         }
 
 
-        public async Task<List<ProductContentDTO>> getAllContent(long productId)
+        public async Task<List<ProductContentDTO>> GetAllContent(long productId)
         {
             try
             {
@@ -160,7 +160,7 @@ namespace ProductService.API.Services
                         Url = relativeUrl,
                         Description = $"Image for product {productId}"
                     };
-                    await createContent(contentDto,productId);
+                    await CreateContent(contentDto,productId);
 
                 }
             }

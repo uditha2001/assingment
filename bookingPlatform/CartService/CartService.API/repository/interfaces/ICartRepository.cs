@@ -61,7 +61,7 @@ namespace CartService.API.repository.interfaces
         /// A <see cref="Task{Int32}"/> representing the asynchronous operation, 
         /// containing the total count of cart items for the user.
         /// </returns>
-        Task<int> getCartItemsCount(long userId);
+        Task<int> GetCartItemsCount(long userId);
 
     }
 

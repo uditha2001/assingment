@@ -14,14 +14,14 @@ namespace ProductService.API.Repository
         {
             _dbContext=dbContext;
         }
-        public async Task<bool> createAttributes(List<ProductAttributesEntity> contents)
+        public async Task<bool> CreateAttributes(List<ProductAttributesEntity> contents)
         {
             _dbContext.productAttribute.AddRange(contents);
             var result= await _dbContext.SaveChangesAsync();
             return result > 0;
         }
 
-        public async Task<bool> deleteAttribute(long attributeId)
+        public async Task<bool> DeleteAttribute(long attributeId)
         {
             var attribute = await _dbContext.productAttribute.FindAsync(attributeId);
             if (attribute == null)
@@ -52,7 +52,7 @@ namespace ProductService.API.Repository
             var result = await _dbContext.SaveChangesAsync();
             return result > 0;
         }
-        public async Task<List<ProductAttributesEntity>> getAllAttributes(long productId)
+        public async Task<List<ProductAttributesEntity>> GetAllAttributes(long productId)
         {
             return await _dbContext.productAttribute
                 .Where(attr => attr.ProductId == productId)

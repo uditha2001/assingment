@@ -5,8 +5,8 @@ namespace userService.Api.repository.interfaces
 {
     public interface IUserRepository
     {
-        Task<bool> createUserAsync(UserEntity user);
-        Task<UserEntity> loginUserAsync(string userName, string password);
-        Task<UserEntity> getUsersAsync(long userId);
+        Task<bool> CreateUserAsync(UserEntity user);
+        Task<UserEntity> LoginUserAsync(string userName, string password);
+        Task<UserEntity> GetUsersAsync(long userId);
     }
 }

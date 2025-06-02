@@ -17,11 +17,11 @@ namespace userService.Api.service
             _userRepository = userRepository;
         }
 
-        public async Task<bool> createUserAsync(UserDTO user)
+        public async Task<bool> CreateUserAsync(UserDTO user)
         {
             user.password=BCrypt.Net.BCrypt.HashPassword(user.password);
             var entity = ToEntity(user);
-            var result = await _userRepository.createUserAsync(entity);
+            var result = await _userRepository.CreateUserAsync(entity);
 
             if (!result)
                 throw new Exception("User creation failed.");
@@ -29,9 +29,9 @@ namespace userService.Api.service
             return result;
         }
 
-        public async Task<UserDTO> getUsersAsync(long userId)
+        public async Task<UserDTO> GetUsersAsync(long userId)
         {
-            var user = await _userRepository.getUsersAsync(userId);
+            var user = await _userRepository.GetUsersAsync(userId);
 
             if (user == null)
                 throw new Exception($"User with ID {userId} not found.");
@@ -39,9 +39,9 @@ namespace userService.Api.service
             return ToDTO(user);
         }
 
-        public async Task<UserDTO> loginUserAsync(string userName, string password)
+        public async Task<UserDTO> LoginUserAsync(string userName, string password)
         {
-            UserEntity user = await _userRepository.loginUserAsync(userName, password);
+            UserEntity user = await _userRepository.LoginUserAsync(userName, password);
             if (user == null)
                 throw new Exception("user not found");
 

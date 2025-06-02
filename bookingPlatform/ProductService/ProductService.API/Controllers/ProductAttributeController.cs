@@ -23,11 +23,11 @@ namespace ProductService.API.Controllers
         /// return all Attributes assign to a productId
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> getAllAttributes([FromQuery] long productId)
+        public async Task<IActionResult> GetAllAttributes([FromQuery] long productId)
         {
             try
             {
-                List<ProductAttributesDTO> productAttributesDTOs = await _productAttributeService.getAllAttributes(productId);
+                List<ProductAttributesDTO> productAttributesDTOs = await _productAttributeService.GetAllAttributes(productId);
                 return Ok(productAttributesDTOs);
             }
             catch (Exception e)
@@ -45,9 +45,9 @@ namespace ProductService.API.Controllers
         /// delete a attribute using attriuteId
         /// </summary>
         [HttpDelete]
-        public async Task<IActionResult> deleteAttribute([FromQuery] long attributeId)
+        public async Task<IActionResult> DeleteAttribute([FromQuery] long attributeId)
         {
-            bool result =await _productAttributeService.deleteAttribute(attributeId);
+            bool result =await _productAttributeService.DeleteAttribute(attributeId);
             if (result)
             {
                 return Ok();
@@ -62,10 +62,10 @@ namespace ProductService.API.Controllers
         /// update atrribute of a product
         /// </summary>
         [HttpPut]
-        public async Task<IActionResult> updateAttribute([FromBody] List<ProductAttributesDTO> attributes, [FromQuery]long productId)
+        public async Task<IActionResult> UpdateAttribute([FromBody] List<ProductAttributesDTO> attributes, [FromQuery]long productId)
         {
             {
-                bool result = await _productAttributeService.updateAttribute(attributes,productId);
+                bool result = await _productAttributeService.UpdateAttribute(attributes,productId);
                 if (result)
                 {
                     return Ok();
@@ -84,9 +84,9 @@ namespace ProductService.API.Controllers
         /// create multiple productAttributes
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> createAtrribute([FromBody]List<ProductAttributesDTO> productsAtribute, [FromQuery] long productId)
+        public async Task<IActionResult> CreateAtrribute([FromBody]List<ProductAttributesDTO> productsAtribute, [FromQuery] long productId)
         {
-            bool result = await _productAttributeService.createAttribute(productsAtribute, productId);
+            bool result = await _productAttributeService.CreateAttribute(productsAtribute, productId);
             if (result)
             {
                 return Ok();

@@ -26,7 +26,7 @@ namespace ProductService.API.Repository.RepositoryInterfaces
         /// </summary>
         /// <param name="product">The <see cref="ProductEntity"/> object to be added.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        Task addProduct(ProductEntity productEntity);
+        Task AddProduct(ProductEntity productEntity);
 
         /// <summary>
         /// Updates an existing product entity in the database.only allow update entity created via internal system
@@ -41,14 +41,14 @@ namespace ProductService.API.Repository.RepositoryInterfaces
         /// <returns>
         /// A task that represents the asynchronous operation. The task result contains a list of <see cref="ProductEntity"/> objects.
         /// </returns>
-        Task<List<ProductEntity>> getAllProducts();
+        Task<List<ProductEntity>> GetAllProducts();
 
         /// <summary>
         /// Saves a new product entity to the database.
         /// </summary>
         /// <param name="productEntity">The <see cref="ProductEntity"/> to be saved.</param>
         /// <returns>A task that represents the asynchronous save operation.</returns>
-        Task<long> saveProduct(ProductEntity productEntity);
+        Task<long> SaveProduct(ProductEntity productEntity);
 
         /// <summary>
         /// Deletes a product with the specified ID if it was created internally 
@@ -59,7 +59,7 @@ namespace ProductService.API.Repository.RepositoryInterfaces
         /// <exception cref="KeyNotFoundException">
         /// Thrown when a product with the specified ID does not exist or does not match the internal system criteria.
         /// </exception>
-        Task deleteProductAsync(long productId);
+        Task DeleteProductAsync(long productId);
 
         /// <summary>
         /// Retrieves all products created by the internal system, identified by an empty Provider and originId of -1.
@@ -67,7 +67,7 @@ namespace ProductService.API.Repository.RepositoryInterfaces
         /// <returns>
         /// A task that represents the asynchronous operation. The task result contains a list of <see cref="ProductEntity"/> objects.
         /// </returns>
-        Task<List<ProductEntity>> getInternalSystemProducts();
+        Task<List<ProductEntity>> GetInternalSystemProducts();
 
         /// <summary>
         /// Updates the available quantity of a product after a sale.
@@ -81,7 +81,7 @@ namespace ProductService.API.Repository.RepositoryInterfaces
         /// Fetches the product by ID from the database, updates its available quantity,
         /// then saves the changes asynchronously.
         /// </remarks>
-        Task<bool> sellProducts(long productId, int restItemsCount);
+        Task<bool> SellProducts(long productId, int restItemsCount);
 
         /// <summary>
         /// Retrieves all product categories from the database.
@@ -92,7 +92,7 @@ namespace ProductService.API.Repository.RepositoryInterfaces
         /// <remarks>
         /// This method fetches all records from the productCategory table asynchronously.
         /// </remarks>
-        Task<List<ProductCategoryEntity>> getAllCategories();
+        Task<List<ProductCategoryEntity>> GetAllCategories();
 
         /// <summary>
         /// Retrieves an external product by its ID.
@@ -106,7 +106,7 @@ namespace ProductService.API.Repository.RepositoryInterfaces
         /// This method queries the database for a product with the specified ID where the Provider field is not null or empty,
         /// indicating that the product is from an external source.
         /// </remarks>
-        Task<ProductEntity> getExternalProductByIdAsync(long productId);
+        Task<ProductEntity> GetExternalProductByIdAsync(long productId);
 
         /// <summary>
         /// Retrieves all products created by a specific user.
@@ -120,7 +120,7 @@ namespace ProductService.API.Repository.RepositoryInterfaces
         /// This method queries the database asynchronously, including related Attributes and Contents entities,
         /// filtering products by the creator's user ID.
         /// </remarks>
-        Task<List<ProductEntity>> getOwnerProducts(long userId);
+        Task<List<ProductEntity>> GetOwnerProducts(long userId);
 
         /// <summary>
         /// Retrieves a product by its ID, including its associated contents and attributes.
@@ -146,7 +146,7 @@ namespace ProductService.API.Repository.RepositoryInterfaces
         /// <remarks>
         /// This method looks up the product by its ID from the checkout order.
         /// </remarks>
-        Task<ProductEntity> chekout(CheckoutDTO order);
+        Task<ProductEntity> Chekout(CheckoutDTO order);
 
         /// <summary>
         /// Checks if a product with the given ID is created within the internal system.
@@ -159,7 +159,7 @@ namespace ProductService.API.Repository.RepositoryInterfaces
         /// This method queries the database for a product with the specified ID where the Provider field is empty,
         /// which indicates that the product was created internally rather than sourced externally.
         /// </remarks>
-        Task<bool> checkInternalSystemProduct(long productId);
+        Task<bool> CheckInternalSystemProduct(long productId);
 
         Task<ProductEntity?> GetExternalProductsWithOriginIdAsync(ProductDTO productDto);
 

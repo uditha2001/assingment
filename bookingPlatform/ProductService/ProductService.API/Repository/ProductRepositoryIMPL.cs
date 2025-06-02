@@ -14,7 +14,7 @@ namespace ProductService.API.Repository
         {
             _dbContext = dbContext;
         }
-        public async Task AddProductAsync(ProductEntity product)
+        public async Task AddProduct(ProductEntity product)
         {
             _dbContext.Products.Add(product);
             await _dbContext.SaveChangesAsync();
@@ -52,30 +52,25 @@ namespace ProductService.API.Repository
         }
 
 
-        async Task IProductRepo.addProduct(ProductEntity productEntity)
-        {
-             _dbContext.Products.Add(productEntity);
-            await _dbContext.SaveChangesAsync();
-
-        }
+       
         public async Task UpdateProductAsync(ProductEntity product)
         {
             await _dbContext.SaveChangesAsync();
         }
-        public async Task<List<ProductEntity>> getAllProducts()
+        public async Task<List<ProductEntity>> GetAllProducts()
         {
             return await _dbContext.Products.Include(p => p.Attributes)
                 .Include(p => p.Contents).ToListAsync();
         }
 
-        public async Task<long> saveProduct(ProductEntity productEntity)
+        public async Task<long> SaveProduct(ProductEntity productEntity)
         {
             _dbContext.Products.Add(productEntity);
             await _dbContext.SaveChangesAsync();
             return productEntity.Id;
         }
 
-        public async  Task deleteProductAsync(long productId)
+        public async  Task DeleteProductAsync(long productId)
         {
             var product = await _dbContext.Products
            .FirstOrDefaultAsync(p => p.Id == productId && p.Provider=="" && p.originId==-1);
@@ -91,14 +86,14 @@ namespace ProductService.API.Repository
             }
         }
 
-        public async Task<List<ProductEntity>> getInternalSystemProducts()
+        public async Task<List<ProductEntity>> GetInternalSystemProducts()
         {
             List<ProductEntity> products =await _dbContext.Products.Where(p => p.Provider == "" && p.originId == -1)
             .ToListAsync();
             return products;
         }
 
-        public async Task<bool> sellProducts(long productId,int restItemsCount)
+        public async Task<bool> SellProducts(long productId,int restItemsCount)
         {
             var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == productId);
             if (product != null)
@@ -111,18 +106,18 @@ namespace ProductService.API.Repository
         }
 
 
-        public async Task<ProductEntity> getExternalProductByIdAsync(long productId)
+        public async Task<ProductEntity> GetExternalProductByIdAsync(long productId)
         {
             return await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == productId && !string.IsNullOrEmpty(p.Provider));
         }
 
-        public async Task<List<ProductCategoryEntity>> getAllCategories()
+        public async Task<List<ProductCategoryEntity>> GetAllCategories()
         {
             return await _dbContext.productCategory.ToListAsync();
         }
 
 
-        public async Task<List<ProductEntity>> getOwnerProducts(long userId)
+        public async Task<List<ProductEntity>> GetOwnerProducts(long userId)
         {
             var userIdStr = userId.ToString();
 
@@ -140,7 +135,7 @@ namespace ProductService.API.Repository
                          .FirstOrDefaultAsync(p => p.Id == productId);
         }
 
-        public async Task<ProductEntity> chekout(CheckoutDTO order)
+        public async Task<ProductEntity> Chekout(CheckoutDTO order)
         {
             ProductEntity product = await _dbContext.Products.FirstOrDefaultAsync(p=>p.Id==order.ProductId);
             if (product != null)
@@ -151,7 +146,7 @@ namespace ProductService.API.Repository
 
         }
 
-        public async Task<bool> checkInternalSystemProduct(long productId)
+        public async Task<bool> CheckInternalSystemProduct(long productId)
         {
             ProductEntity product = await _dbContext.Products.FirstOrDefaultAsync(p=>p.Id==productId && p.Provider=="");
             if (product == null)
@@ -161,6 +156,6 @@ namespace ProductService.API.Repository
             return true;
         }
 
-       
+        
     }
 }

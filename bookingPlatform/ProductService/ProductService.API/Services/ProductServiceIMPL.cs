@@ -42,7 +42,7 @@ namespace ProductService.API.Services
             try
             {
                 ProductEntity product = ProductDTOToEntity(productDto);
-                await _productRepo.addProduct(product);
+                await _productRepo.AddProduct(product);
                 return true;
 
             }
@@ -191,7 +191,7 @@ namespace ProductService.API.Services
                             ProductId = productDto.Id
                         }).ToList() ?? new List<ProductContentEntity>();
 
-                        await _productRepo.addProduct(newEntity);
+                        await _productRepo.AddProduct(newEntity);
                     }
                 }
 
@@ -207,7 +207,7 @@ namespace ProductService.API.Services
 
         public async Task<List<ProductDTO>> GetAllProducts()
         {
-            var products = await _productRepo.getAllProducts();
+            var products = await _productRepo.GetAllProducts();
             List<ProductDTO> productsList = new List<ProductDTO>();
             foreach (ProductEntity productEntity in products)
             {
@@ -224,7 +224,7 @@ namespace ProductService.API.Services
             try
             {
                 ProductEntity productEntity = ProductDTOToEntity(productdto);
-               long id= await _productRepo.saveProduct(productEntity);
+               long id= await _productRepo.SaveProduct(productEntity);
                 return id;
 
 
@@ -306,7 +306,7 @@ namespace ProductService.API.Services
 
                 foreach (var content in contentsToDelete)
                 {
-                    var success = await _productContentService.deleteContent(content.ContentId);
+                    var success = await _productContentService.DeleteContent(content.ContentId);
 
                     if (!success)
                     {
@@ -320,7 +320,7 @@ namespace ProductService.API.Services
 
 
 
-                await _productRepo.deleteProductAsync(productId);
+                await _productRepo.DeleteProductAsync(productId);
                 return true;
             }
             catch (Exception e)
@@ -334,7 +334,7 @@ namespace ProductService.API.Services
         {
             try
             {
-                List<ProductEntity> productEntityList = await _productRepo.getInternalSystemProducts();
+                List<ProductEntity> productEntityList = await _productRepo.GetInternalSystemProducts();
                 List<ProductDTO> products = new List<ProductDTO>();
                 foreach (ProductEntity productEntity in productEntityList)
                 {
@@ -362,13 +362,13 @@ namespace ProductService.API.Services
                 foreach (CheckoutDTO orders in orderDto)
                 {
                     ProductEntity product = await _productRepo.GetProductById(orders.ProductId);
-                    bool isProductInternal = await _productRepo.checkInternalSystemProduct(orders.ProductId);
+                    bool isProductInternal = await _productRepo.CheckInternalSystemProduct(orders.ProductId);
                     if (isProductInternal)
                     {
                         if (product.availableQuantity >= orders.quantity)
                         {
                             
-                            await _productRepo.sellProducts(product.Id, (product.availableQuantity - orders.quantity));
+                            await _productRepo.SellProducts(product.Id, (product.availableQuantity - orders.quantity));
                             status = true;
                         }
                     }
@@ -417,7 +417,7 @@ namespace ProductService.API.Services
         {
             try
             {
-                ProductEntity product = await _productRepo.getExternalProductByIdAsync(productId);
+                ProductEntity product = await _productRepo.GetExternalProductByIdAsync(productId);
                 if (product != null)
                 {
                     ProductDTO productDto = ProductEntityToDTO(product);
@@ -459,7 +459,7 @@ namespace ProductService.API.Services
         {
             try
             {
-                List<ProductCategoryEntity> categories = await _productRepo.getAllCategories();
+                List<ProductCategoryEntity> categories = await _productRepo.GetAllCategories();
                 List<ProductCategoryDTO> result = new List<ProductCategoryDTO>();
                 foreach (ProductCategoryEntity entity in categories)
                 {
@@ -501,7 +501,7 @@ namespace ProductService.API.Services
         {
             try
             {
-                List<ProductEntity> allProducts=await _productRepo.getOwnerProducts(userId);
+                List<ProductEntity> allProducts=await _productRepo.GetOwnerProducts(userId);
                 List<ProductDTO> result = new List<ProductDTO>();
                 foreach (ProductEntity entity in allProducts)
                 {
@@ -523,10 +523,10 @@ namespace ProductService.API.Services
         {
             try
             {
-                bool isProductInternal = await _productRepo.checkInternalSystemProduct(order.ProductId);
+                bool isProductInternal = await _productRepo.CheckInternalSystemProduct(order.ProductId);
                 if (isProductInternal)
                 {
-                    ProductEntity productEntity = await _productRepo.chekout(order);
+                    ProductEntity productEntity = await _productRepo.Chekout(order);
                     if (productEntity.availableQuantity >= order.quantity)
                     {
                         return true;

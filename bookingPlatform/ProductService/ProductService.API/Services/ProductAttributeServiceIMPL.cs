@@ -14,7 +14,7 @@ namespace ProductService.API.Services
             _repo = repo;
             _logger = logger;
         }
-        public async Task<bool> createAttribute(List<ProductAttributesDTO> productAttributesDTOs, long productId)
+        public async Task<bool> CreateAttribute(List<ProductAttributesDTO> productAttributesDTOs, long productId)
         {
             try
             {
@@ -26,7 +26,7 @@ namespace ProductService.API.Services
                         ProductAttributesEntity productAttributesEntity = ToEntity(productAttributesDTO,productId);
                         productAttributesEntities.Add(productAttributesEntity);
                     }
-                    bool result = await _repo.createAttributes(productAttributesEntities);
+                    bool result = await _repo.CreateAttributes(productAttributesEntities);
                     return result;
                 }
                 return false;
@@ -39,11 +39,11 @@ namespace ProductService.API.Services
             }
         }
 
-        public async Task<bool> deleteAttribute(long attributeId)
+        public async Task<bool> DeleteAttribute(long attributeId)
         {
             try
             {
-                bool result = await _repo.deleteAttribute(attributeId);
+                bool result = await _repo.DeleteAttribute(attributeId);
                 return result;
             }
             catch (Exception e)
@@ -54,11 +54,11 @@ namespace ProductService.API.Services
             }
         }
 
-        public async Task<List<ProductAttributesDTO>> getAllAttributes(long productId) 
+        public async Task<List<ProductAttributesDTO>> GetAllAttributes(long productId) 
         {
            
                 List<ProductAttributesDTO> productAttributesDTOs = new List<ProductAttributesDTO>();
-                List<ProductAttributesEntity> productAttributeEntity =await _repo.getAllAttributes(productId);
+                List<ProductAttributesEntity> productAttributeEntity =await _repo.GetAllAttributes(productId);
                 foreach (ProductAttributesEntity attributesEntity in productAttributeEntity)
                 {
                     ProductAttributesDTO productAttributesDTO = ToDTO(attributesEntity);
@@ -68,7 +68,7 @@ namespace ProductService.API.Services
             
         }
 
-        public async Task<bool> updateAttribute(List<ProductAttributesDTO> productAttributeDTOs, long productId)
+        public async Task<bool> UpdateAttribute(List<ProductAttributesDTO> productAttributeDTOs, long productId)
         {
             try
             {

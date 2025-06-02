@@ -32,7 +32,7 @@ namespace ProductService.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllContent([FromQuery] long productId)
         {
-            var contentList = await _productContentService.getAllContent(productId);
+            var contentList = await _productContentService.GetAllContent(productId);
             return Ok(contentList);
         }
 
@@ -44,7 +44,7 @@ namespace ProductService.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteContent(long id)
         {
-            var result = await _productContentService.deleteContent(id);
+            var result = await _productContentService.DeleteContent(id);
             if (!result)
                 return StatusCode(500, $"Failed to delete content with ID {id}.");
             return Ok($"Content with ID {id} deleted successfully.");

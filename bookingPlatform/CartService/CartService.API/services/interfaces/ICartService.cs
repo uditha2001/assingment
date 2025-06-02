@@ -72,7 +72,7 @@ namespace CartService.API.services.interfaces
         /// containing the total count of cart items for the specified user.
         /// </returns>
         /// <exception cref="ApplicationException">Thrown when the count retrieval fails.</exception>
-        Task<int> getCartItemsCount(long userId);
+        Task<int> GetCartItemsCount(long userId);
 
     }
 

@@ -54,7 +54,7 @@ namespace ProductService.API.Controllers
         /// Delete a product byId,only allow to delete products which were added using internal system.
         /// </summary>
         [HttpDelete]
-        public async Task<ActionResult> deleteProduct([FromQuery]long productId)
+        public async Task<ActionResult> DeleteProduct([FromQuery]long productId)
         {
             bool result = await _iproductService.DeleteProductAsync(productId);
             if (result)
@@ -71,7 +71,7 @@ namespace ProductService.API.Controllers
         /// getInternalSystemProducts,only retriew products that add through the internal system
         /// </summary>
         [HttpGet("internalSystemProducts")]
-        public async Task<IActionResult> getInternalSystemProducts()
+        public async Task<IActionResult> GetInternalSystemProducts()
         {
             List<ProductDTO> products=await _iproductService.GetInternalSystemProducts();
             return Ok(products);

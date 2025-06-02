@@ -15,7 +15,7 @@ namespace userService.Api.repository
             _userDbContext = userDbContext;
         }
 
-        public async Task<bool> createUserAsync(UserEntity user)
+        public async Task<bool> CreateUserAsync(UserEntity user)
         {
             try
             {
@@ -29,13 +29,13 @@ namespace userService.Api.repository
             }
         }
 
-        public async Task<UserEntity> getUsersAsync(long userId)
+        public async Task<UserEntity> GetUsersAsync(long userId)
         {
             var user = await _userDbContext.Users.FindAsync(userId);
             return user;
         }
 
-        public async Task<UserEntity> loginUserAsync(string userName, string password)
+        public async Task<UserEntity> LoginUserAsync(string userName, string password)
         {
           UserEntity userDetails=await _userDbContext.Users.FirstOrDefaultAsync(U=>U.userName== userName);
             return userDetails;
