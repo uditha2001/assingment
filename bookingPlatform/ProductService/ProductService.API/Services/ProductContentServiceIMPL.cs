@@ -151,6 +151,7 @@ namespace ProductService.API.Services
                     }
 
                     var relativeUrl = Path.Combine("uploads", "products", productId.ToString(), fileName).Replace("\\", "/");
+                  
 
                     ProductContentDTO contentDto = new ProductContentDTO
                     {

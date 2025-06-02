@@ -17,13 +17,15 @@ namespace ProductService.API.Services
         private readonly ILogger<ProductServiceImpl> _logger;
         private readonly HttpClient _httpClient;
         private readonly ServiceUrls _urls;
+        private readonly IProductContentService _productContentService;
 
 
 
         public ProductServiceImpl(
           IProductRepo productRepo,
           ILogger<ProductServiceImpl> logger,
-          IOptions<ServiceUrls> options
+          IOptions<ServiceUrls> options,
+          IProductContentService productContentService
 
          )
         {
@@ -31,9 +33,11 @@ namespace ProductService.API.Services
             _httpClient = new HttpClient();
             _logger = logger;
             _urls = options.Value;
+            _productContentService = productContentService;
+
         }
 
-        public async Task<bool> importProducts(ProductDTO productDto)
+        public async Task<bool> ImportProducts(ProductDTO productDto)
         {
             try
             {
@@ -116,7 +120,7 @@ namespace ProductService.API.Services
 
                 foreach (var productDto in productsList)
                 {
-                    var existingProduct = await _productRepo.GetProductIfExistsAsync(productDto);
+                    var existingProduct = await _productRepo.GetExternalProductsWithOriginIdAsync(productDto);
 
                     if (existingProduct != null)
                     {
@@ -133,6 +137,7 @@ namespace ProductService.API.Services
 
                         await _productRepo.RemoveAllProductAttributesByProvider(existingProduct);
                         await _productRepo.RemoveAllProductContentsWhereProviderNotEmpty(existingProduct);
+
 
                         if (productDto.Attributes != null)
                         {
@@ -200,7 +205,7 @@ namespace ProductService.API.Services
         }
 
 
-        public async Task<List<ProductDTO>> getAllProducts()
+        public async Task<List<ProductDTO>> GetAllProducts()
         {
             var products = await _productRepo.getAllProducts();
             List<ProductDTO> productsList = new List<ProductDTO>();
@@ -214,7 +219,7 @@ namespace ProductService.API.Services
             return productsList;
         }
 
-        public async Task<long> createProduct(ProductDTO productdto)
+        public async Task<long> CreateProduct(ProductDTO productdto)
         {
             try
             {
@@ -232,7 +237,7 @@ namespace ProductService.API.Services
             }
         }
 
-        public void extractAttributesAndContentFromProductDTO(ProductDTO productdto, ProductEntity productentity)
+        public void ExtractAttributesAndContentFromProductDTO(ProductDTO productdto, ProductEntity productentity)
         {
             if (productdto.Attributes != null)
             {
@@ -291,10 +296,30 @@ namespace ProductService.API.Services
         }
 
 
-        public async Task<bool> deleteProductAsync(long productId)
+        public async Task<bool> DeleteProductAsync(long productId)
         {
             try
             {
+                var existingProduct = await _productRepo.GetProductById(productId);
+
+                var contentsToDelete = existingProduct.Contents.ToList();
+
+                foreach (var content in contentsToDelete)
+                {
+                    var success = await _productContentService.deleteContent(content.ContentId);
+
+                    if (!success)
+                    {
+                        _logger.LogWarning("Content ID {ContentId} could not be deleted (may have provider)", content.ContentId);
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Content ID {ContentId} successfully deleted", content.ContentId);
+                    }
+                }
+
+
+
                 await _productRepo.deleteProductAsync(productId);
                 return true;
             }
@@ -305,7 +330,7 @@ namespace ProductService.API.Services
         }
 
 
-        public async Task<List<ProductDTO>> getInternalSystemProducts()
+        public async Task<List<ProductDTO>> GetInternalSystemProducts()
         {
             try
             {
@@ -333,6 +358,7 @@ namespace ProductService.API.Services
         {
             try
             {
+                bool status=false;
                 foreach (CheckoutDTO orders in orderDto)
                 {
                     ProductEntity product = await _productRepo.GetProductById(orders.ProductId);
@@ -343,7 +369,7 @@ namespace ProductService.API.Services
                         {
                             
                             await _productRepo.sellProducts(product.Id, (product.availableQuantity - orders.quantity));
-                            return true;
+                            status = true;
                         }
                     }
                     else
@@ -359,24 +385,24 @@ namespace ProductService.API.Services
 
                             if (bool.TryParse(responseBody, out bool isSuccess) && isSuccess)
                             {
-                                return true;
+                                status = true;
                             }
                             else
                             {
                                 Console.WriteLine("Response was false or not a valid boolean.");
-                                return false;
+                                status= false;
                             }
                         }
                             else
                             {
                                 Console.WriteLine($"Failed to update product: {response.StatusCode}");
-                                return false;
+                                status= false;
                             }
 
                         
                     }
                 }
-                return true;
+                return status;
 
             }
             catch (Exception e)
@@ -429,7 +455,7 @@ namespace ProductService.API.Services
             }
         }
 
-        public async Task<List<ProductCategoryDTO>> getAllCategories()
+        public async Task<List<ProductCategoryDTO>> GetAllCategories()
         {
             try
             {
@@ -459,7 +485,7 @@ namespace ProductService.API.Services
             };
         }
 
-        public ProductCategoryEntity categoryDToToEntity(ProductCategoryDTO dto)
+        public ProductCategoryEntity CategoryDToToEntity(ProductCategoryDTO dto)
         {
             if (dto == null) return null;
 
@@ -471,7 +497,7 @@ namespace ProductService.API.Services
             };
         }
 
-        public async Task<List<ProductDTO>> getOwnerProducts(long userId)
+        public async Task<List<ProductDTO>> GetOwnerProducts(long userId)
         {
             try
             {
@@ -536,11 +562,11 @@ namespace ProductService.API.Services
 
         }
 
-        public async Task<bool> updateProduct(ProductDTO productDto)
+        public async Task<bool> UpdateProduct(ProductDTO productDto)
         {
             try
             {
-                var existingProduct = await _productRepo.GetProductIfExistsAsync(productDto);
+                var existingProduct = await _productRepo.GetProductById(productDto.Id);
 
                 if (existingProduct != null)
                 {
@@ -557,6 +583,7 @@ namespace ProductService.API.Services
 
                     await _productRepo.RemoveAllProductAttributesByProvider(existingProduct);
                     await _productRepo.RemoveAllProductContentsWhereProviderNotEmpty(existingProduct);
+                    
 
                     if (productDto.Attributes != null)
                     {
@@ -576,6 +603,7 @@ namespace ProductService.API.Services
                     {
                         foreach (var contentDto in productDto.Contents)
                         {
+
                             existingProduct.Contents.Add(new ProductContentEntity
                             {
                                 provider = contentDto.provider,

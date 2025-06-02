@@ -41,7 +41,7 @@ namespace ProductService.API.Repository
         }
 
 
-        public async Task<ProductEntity?> GetProductIfExistsAsync(ProductDTO productDto)
+        public async Task<ProductEntity?> GetExternalProductsWithOriginIdAsync(ProductDTO productDto)
         {
             return await _dbContext.Products
                 .Include(p => p.Attributes)
@@ -60,7 +60,6 @@ namespace ProductService.API.Repository
         }
         public async Task UpdateProductAsync(ProductEntity product)
         {
-            _dbContext.Products.Update(product);
             await _dbContext.SaveChangesAsync();
         }
         public async Task<List<ProductEntity>> getAllProducts()
@@ -161,5 +160,7 @@ namespace ProductService.API.Repository
             }
             return true;
         }
+
+       
     }
 }

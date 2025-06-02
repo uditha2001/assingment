@@ -3,22 +3,47 @@ import { FiEdit2, FiTrash2, FiPlus, FiX } from "react-icons/fi";
 import { useLocation } from "react-router-dom";
 import useProductApi from "../api/productAPI/useProductApi";
 import SuccessMessage from "../components/SuccessMessage";
-import ErrorMessage from "../components/ErrorMessage"; // Add this import
+import ErrorMessage from "../components/ErrorMessage";
 
 const BASE_URL = "http://localhost:5010/";
 
+/**
+ * EditProducts component allows viewing, editing, and deleting a product.
+ * It supports editing product fields, attributes, and images.
+ *
+ * Props:
+ * - onSave: function(updatedProduct) => void
+ * - onDelete: function(productId) => void
+ */
 const EditProducts = ({ onSave, onDelete }) => {
+  // Get product data from router location state
   const location = useLocation();
   const product = location.state?.product;
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [editProduct, setEditProduct] = useState({ ...product });
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [categories, setCategories] = useState([]);
-  const [successMessage, setSuccessMessage] = useState(""); // Add this state
-  const [errorMessage, setErrorMessage] = useState(""); // Add this state
-  const { getProductCategory, deleteContent, updateProduct } = useProductApi(); // <-- add updateProduct
+  // If product is missing, show a message or redirect
+  if (!product) {
+    return (
+      <div className="text-red-600">
+        No product data found. Please navigate from the product list.
+      </div>
+    );
+  }
 
+  // UI and data states
+  const [isEditing, setIsEditing] = useState(false); // Edit mode toggle
+  const [editProduct, setEditProduct] = useState({ ...product }); // Product being edited
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // Delete confirmation modal
+  const [categories, setCategories] = useState([]); // Product categories
+  const [successMessage, setSuccessMessage] = useState(""); // Success feedback
+  const [errorMessage, setErrorMessage] = useState(""); // Error feedback
+
+  // API hooks
+  const { getProductCategory, deleteContent, updateProduct, createContent } =
+    useProductApi();
+
+  /**
+   * Fetch product categories on mount.
+   */
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -29,12 +54,19 @@ const EditProducts = ({ onSave, onDelete }) => {
       }
     };
     fetchCategories();
-  }, []); // <-- Only run once on mount
+  }, []);
+
+  /**
+   * Log product changes for debugging.
+   */
   useEffect(() => {
     console.log("Product to edit:", product);
   }, [editProduct]);
 
-  // Handlers for product fields
+  /**
+   * Handle changes to product fields (name, price, etc.).
+   * @param {object} e - Input change event
+   */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEditProduct((prev) => ({
@@ -43,7 +75,12 @@ const EditProducts = ({ onSave, onDelete }) => {
     }));
   };
 
-  // Attribute handlers
+  /**
+   * Handle changes to a specific attribute.
+   * @param {number} idx - Attribute index
+   * @param {string} key - Attribute property ('key' or 'value')
+   * @param {string} value - New value
+   */
   const handleAttributeChange = (idx, key, value) => {
     const updated = [...editProduct.attributes];
     updated[idx][key] = value;
@@ -53,6 +90,10 @@ const EditProducts = ({ onSave, onDelete }) => {
     }));
   };
 
+  /**
+   * Remove an attribute by index.
+   * @param {number} idx - Attribute index
+   */
   const handleDeleteAttribute = (idx) => {
     setEditProduct((prev) => ({
       ...prev,
@@ -60,7 +101,11 @@ const EditProducts = ({ onSave, onDelete }) => {
     }));
   };
 
-  // Content handlers
+  /**
+   * Remove a content (image) by index.
+   * If the content has a contentId, delete from server as well.
+   * @param {number} idx - Content index
+   */
   const handleDeleteContent = async (idx) => {
     const content = editProduct.contents[idx];
     console.log(
@@ -84,7 +129,6 @@ const EditProducts = ({ onSave, onDelete }) => {
         alert("Error deleting image from server.");
       }
     } else {
-      // If not saved yet, just remove from local state
       setEditProduct((prev) => ({
         ...prev,
         contents: prev.contents.filter((_, i) => i !== idx),
@@ -92,9 +136,12 @@ const EditProducts = ({ onSave, onDelete }) => {
     }
   };
 
-  // Add new attribute
+  // State for new attribute input
   const [newAttr, setNewAttr] = useState({ key: "", value: "" });
 
+  /**
+   * Add a new attribute to the product.
+   */
   const handleAddAttribute = () => {
     if (newAttr.key && newAttr.value) {
       setEditProduct((prev) => ({
@@ -102,8 +149,8 @@ const EditProducts = ({ onSave, onDelete }) => {
         attributes: [
           ...prev.attributes,
           {
-            attributeId: 0, // Always 0 for new
-            provider: "", // Always empty string for new
+            attributeId: 0,
+            provider: "",
             key: newAttr.key,
             value: newAttr.value,
           },
@@ -113,14 +160,17 @@ const EditProducts = ({ onSave, onDelete }) => {
     }
   };
 
-  // Add new content (image)
+  /**
+   * Add new images to the product.
+   * @param {object} e - File input change event
+   */
   const handleAddContent = (e) => {
     const files = Array.from(e.target.files);
     const newContents = files.map((file) => ({
       url: URL.createObjectURL(file),
       name: file.name,
       type: "image",
-      file, // keep file for upload
+      file,
     }));
     setEditProduct((prev) => ({
       ...prev,
@@ -128,13 +178,22 @@ const EditProducts = ({ onSave, onDelete }) => {
     }));
   };
 
-  // Save handler
+  /**
+   * Save the edited product.
+   * Calls the updateProduct API and shows feedback.
+   */
   const handleSave = async () => {
-    // Get userId for createdBy
     const user = JSON.parse(localStorage.getItem("user") || "null");
     const userId = user?.userId;
 
-    // Prepare product object for API
+    // Separate new and existing images
+    const allImages = editProduct.contents.filter(
+      (c) => c.type && c.type.toLowerCase().startsWith("image")
+    );
+    const newImages = allImages.filter((c) => c.file);
+    const existingImages = allImages.filter((c) => !c.file);
+
+    // Prepare product update payload with existing images' metadata
     const updatedProduct = {
       name: editProduct.name,
       description: editProduct.description,
@@ -146,15 +205,17 @@ const EditProducts = ({ onSave, onDelete }) => {
       createdBy: userId,
       productCategoryId: Number(editProduct.productCategoryId),
       attributes: editProduct.attributes,
-      contents: editProduct.contents,
-      id: editProduct.id, // include id if needed by backend
+      contents: existingImages, // Send existing images' metadata
+      id: editProduct.id,
     };
 
     try {
-      console.log("Saving product:", updatedProduct);
       const response = await updateProduct(updatedProduct);
-      // Check if response.status is 200 and response.data is true
       if (response.status === 200 && response.data === true) {
+        // Upload new images as files
+        if (newImages.length > 0) {
+          await createContent(editProduct.id, newImages.map((img) => img.file));
+        }
         if (onSave) onSave(updatedProduct);
         setIsEditing(false);
         setSuccessMessage("Product updated successfully!");
@@ -170,13 +231,19 @@ const EditProducts = ({ onSave, onDelete }) => {
     }
   };
 
-  // Delete handler
+  /**
+   * Delete the product (calls parent onDelete).
+   */
   const handleDelete = () => {
     setShowDeleteConfirm(false);
     if (onDelete) onDelete(product.id);
   };
 
-  // Normalize URL to full URL if relative
+  /**
+   * Normalize a content URL to a full URL if it's relative.
+   * @param {string} url - Content URL
+   * @returns {string}
+   */
   const getContentUrl = (url) => {
     if (!url) return "";
     if (url.startsWith("http://") || url.startsWith("https://")) {
@@ -185,15 +252,18 @@ const EditProducts = ({ onSave, onDelete }) => {
     return BASE_URL + url.replace(/^\/+/, "");
   };
 
-  // Find current category name
+  // Find the current category name for display
   const currentCategory =
     categories.find((cat) => cat.id === Number(editProduct.productCategoryId))
       ?.name || "No Category";
 
   return (
     <div className="max-w-2xl mx-auto bg-white rounded-lg shadow p-6">
+      {/* Success and error messages */}
       {successMessage && <SuccessMessage message={successMessage} />}
       {errorMessage && <ErrorMessage message={errorMessage} />}
+
+      {/* Header with edit/delete buttons */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">{editProduct.name}</h2>
         <div className="flex gap-2">
@@ -206,17 +276,13 @@ const EditProducts = ({ onSave, onDelete }) => {
               >
                 <FiEdit2 />
               </button>
-              <button
-                className="text-red-600 hover:text-red-800"
-                onClick={() => setShowDeleteConfirm(true)}
-                title="Delete Product"
-              >
-                <FiTrash2 />
-              </button>
+              {/* Removed Delete Product button */}
             </>
           )}
         </div>
       </div>
+
+      {/* Product fields */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div>
           <label className="block text-sm mb-1">Product Name</label>
@@ -296,6 +362,8 @@ const EditProducts = ({ onSave, onDelete }) => {
           />
         </div>
       </div>
+
+      {/* Description */}
       <div>
         <label className="block text-sm mb-1">Description</label>
         <textarea
@@ -307,7 +375,8 @@ const EditProducts = ({ onSave, onDelete }) => {
           disabled={!isEditing}
         />
       </div>
-      {/* Attributes */}
+
+      {/* Attributes section */}
       <div className="mb-4">
         <label className="block text-sm mb-1">Attributes</label>
         <div className="flex flex-wrap gap-2 mb-2">
@@ -382,38 +451,38 @@ const EditProducts = ({ onSave, onDelete }) => {
           </div>
         )}
       </div>
-      {/* Contents */}
+
+      {/* Product images section */}
       <div className="mb-4">
         <label className="block text-sm mb-1">Product Images</label>
         <div className="flex flex-wrap gap-2 mb-2">
           {(isEditing
-            ? editProduct.contents // Show all images in edit mode
+            ? editProduct.contents // Show all contents in edit mode
             : editProduct.contents.filter(
-                (c) => c.type?.toLowerCase() === "image"
+                (c) => c.type && c.type.toLowerCase().startsWith("image")
               )
-          ) // Only images in view mode
-            .map((content, idx) => (
-              <div
-                key={idx}
-                className="relative w-16 h-16 border rounded overflow-hidden flex items-center justify-center bg-gray-100"
-              >
-                <img
-                  src={getContentUrl(content.url)}
-                  alt={content.name}
-                  className="object-cover w-full h-full"
-                />
-                {isEditing && (
-                  <button
-                    type="button"
-                    className="absolute top-0 right-0 bg-white rounded-bl px-1 py-0.5 text-red-600"
-                    onClick={() => handleDeleteContent(idx)}
-                    title="Remove"
-                  >
-                    <FiX />
-                  </button>
-                )}
-              </div>
-            ))}
+          ).map((content, idx) => (
+            <div
+              key={idx}
+              className="relative w-16 h-16 border rounded overflow-hidden flex items-center justify-center bg-gray-100"
+            >
+              <img
+                src={content.file ? content.url : getContentUrl(content.url)}
+                alt={content.name}
+                className="object-cover w-full h-full"
+              />
+              {isEditing && (
+                <button
+                  type="button"
+                  className="absolute top-0 right-0 bg-white rounded-bl px-1 py-0.5 text-red-600"
+                  onClick={() => handleDeleteContent(idx)}
+                  title="Remove"
+                >
+                  <FiX />
+                </button>
+              )}
+            </div>
+          ))}
         </div>
         {isEditing && (
           <input
@@ -425,7 +494,8 @@ const EditProducts = ({ onSave, onDelete }) => {
           />
         )}
       </div>
-      {/* Action Buttons */}
+
+      {/* Action buttons for save/cancel */}
       {isEditing && (
         <div className="flex gap-2">
           <button
@@ -442,13 +512,12 @@ const EditProducts = ({ onSave, onDelete }) => {
           </button>
         </div>
       )}
-      {/* Delete Confirmation */}
+
+      {/* Delete confirmation modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
           <div className="bg-white p-6 rounded shadow-lg">
-            <p className="mb-4">
-              Are you sure you want to delete this product?
-            </p>
+            <p className="mb-4">Are you sure you want to delete this product?</p>
             <div className="flex gap-4">
               <button
                 className="bg-red-600 text-white px-4 py-2 rounded"

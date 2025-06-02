@@ -13,6 +13,8 @@ namespace AdapterFactory.Adapters
     {
         private readonly HttpClient _httpClient;
         private readonly ServiceUrls _urls;
+        public string SourceName => "abc";
+
 
 
         public AbcAdapter(HttpClient httpClient, IOptions<ServiceUrls> options)

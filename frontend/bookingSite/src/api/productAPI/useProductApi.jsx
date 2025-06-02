@@ -19,7 +19,7 @@ const useProductApi = () => {
     const formData = new FormData();
 
     images.forEach((image) => {
-        formData.append('images', image); // Key must match 'images' in backend
+        formData.append('images', image); 
     });
 
     const response = await axiosPrivate.post(

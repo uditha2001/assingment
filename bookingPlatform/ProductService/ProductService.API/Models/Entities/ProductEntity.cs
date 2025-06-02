@@ -8,6 +8,7 @@ namespace ProductService.API.Models.Entities
     public class ProductEntity
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
         public long originId { get; set; } = -1;
 

@@ -2,8 +2,6 @@
 using Microsoft.Extensions.Options;
 using OrderService.API.DTO;
 using ProductService.API.DTO;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
 using System.Text.Json;
 
 
@@ -11,52 +9,67 @@ namespace AdapterFactory.Service
 {
     public class AdapterFactoryServiceIMPL : IAdapterFactory
     {
-        private readonly IServiceProvider _serviceProvider;
         private readonly HttpClient _httpClient;
         private readonly ILogger<AdapterFactoryServiceIMPL> _logger;
         private readonly ServiceUrls _urls;
-        private String[] serviceIdentifiers={ "abc", "cde" };
+        private readonly Dictionary<string, IAdapter> _adapters;
 
-        public AdapterFactoryServiceIMPL(IServiceProvider serviceProvider,HttpClient httpClient, ILogger<AdapterFactoryServiceIMPL> logger, IOptions<ServiceUrls> options)
+        public AdapterFactoryServiceIMPL(HttpClient httpClient, ILogger<AdapterFactoryServiceIMPL> logger, IOptions<ServiceUrls> options,IEnumerable<IAdapter> adapters)
         {
-            _serviceProvider = serviceProvider;
             _httpClient = httpClient;
             _logger = logger;
             _urls = options.Value;
+            _adapters = adapters.ToDictionary(a => a.SourceName.ToLower(), a => a);
         }
 
 
         public IAdapter GetAdapterById(string adapterId)
         {
-            return adapterId.ToLower() switch
+            try
             {
-                "abc" => _serviceProvider.GetRequiredService<AbcAdapter>(),
-                "cde" => _serviceProvider.GetRequiredService<CdeAdapter>(),
-                _ => throw new NotSupportedException($"Adapter with ID '{adapterId}' is not supported.")
-            };
+                if (_adapters.TryGetValue(adapterId.ToLower(), out var adapter))
+                {
+                    return adapter;
+                }
+                else
+                {
+                    throw new KeyNotFoundException($"Adapter with id '{adapterId}' not found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetAdapterById: {ex.Message}");
+                throw;
+            }
         }
-        public async Task<List<ProductDTO>> getAllProducts()
+
+        public async Task<List<ProductDTO>> GetAllProductsAsync()
         {
-            var productTasks = serviceIdentifiers.Select(async adapterId =>
+            var productTasks = _adapters.Select(async kvp =>
             {
+                var adapterId = kvp.Key;
+                var adapter = kvp.Value;
+
                 try
                 {
-                    IAdapter adapter = GetAdapterById(adapterId);
                     return await adapter.GetProductContentsFromExternalServiceAsync();
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error fetching products from adapter '{adapterId}': {ex.Message}");
-                    return new List<ProductDTO>(); 
+                    return new List<ProductDTO>();
                 }
             });
 
             var productLists = await Task.WhenAll(productTasks);
-
             return productLists.SelectMany(p => p).ToList();
         }
 
-        public async Task<bool> placeOrder(CheckoutDTO order)
+
+        // Return true if no exception occurs, because adapters do not store persistent data,
+        // and the order is considered placed successfully.
+
+        public async Task<bool> PlaceOrder(CheckoutDTO order)
         {
             try
             {
@@ -75,11 +88,6 @@ namespace AdapterFactory.Service
                     {
                         PropertyNameCaseInsensitive = true
                     });
-                if (product.provider != "")
-                {
-                    IAdapter adapter = GetAdapterById(product.provider);
-                     return  adapter.placeOrder();
-                }
                     return true;
             }
             catch (Exception ex)
@@ -92,7 +100,7 @@ namespace AdapterFactory.Service
 
         }
 
-        public async Task<bool> checkoutOrder(CheckoutDTO order)
+        public async Task<bool> CheckoutOrder(CheckoutDTO order)
 
         {
             try

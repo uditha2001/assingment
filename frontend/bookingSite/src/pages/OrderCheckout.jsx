@@ -58,6 +58,7 @@ const OrderCheckout = () => {
           itemTotalPrice: item.itemTotalPrice,
         };
         try {
+          console.log("Processing order for:", order);
           const response = await checkoutOrders(order);
           tempResults.push({
             ...item,
@@ -98,6 +99,7 @@ const OrderCheckout = () => {
       }));
 
     try {
+      console.log("Placing order with items:", successfulItems);
       const sellResponse = await sellProducts(successfulItems);
       if (sellResponse.status === 200) {
         const order = {

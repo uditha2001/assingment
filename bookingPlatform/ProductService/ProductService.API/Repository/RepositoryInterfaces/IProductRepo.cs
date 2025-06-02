@@ -22,17 +22,6 @@ namespace ProductService.API.Repository.RepositoryInterfaces
         Task RemoveAllProductContentsWhereProviderNotEmpty(ProductEntity existingProduct);
 
         /// <summary>
-        /// Retrieves an existing product entity that matches the given <see cref="ProductDTO"/> based on origin ID and provider.
-        /// Includes related attributes and contents in the query.
-        /// </summary>
-        /// <param name="productDto">The <see cref="ProductDTO"/> containing origin ID and provider to match.</param>
-        /// <returns>
-        /// A task that represents the asynchronous operation. The task result contains the matched <see cref="ProductEntity"/> 
-        /// if found; otherwise, <c>null</c>.
-        /// </returns>
-        Task<ProductEntity> GetProductIfExistsAsync(ProductDTO productDto);
-
-        /// <summary>
         /// Adds a new product to the database asynchronously.
         /// </summary>
         /// <param name="product">The <see cref="ProductEntity"/> object to be added.</param>
@@ -172,8 +161,7 @@ namespace ProductService.API.Repository.RepositoryInterfaces
         /// </remarks>
         Task<bool> checkInternalSystemProduct(long productId);
 
-
-
+        Task<ProductEntity?> GetExternalProductsWithOriginIdAsync(ProductDTO productDto);
 
     }
 }

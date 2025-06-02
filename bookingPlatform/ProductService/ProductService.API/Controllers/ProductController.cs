@@ -21,7 +21,7 @@ namespace ProductService.API.Controllers
         [HttpGet("allProducts")]
         public async Task<ActionResult<ProductDTO[]>> GetAllProducts()
         {
-            var result = await _iproductService.getAllProducts();
+            var result = await _iproductService.GetAllProducts();
 
             if (result == null)
                 return NotFound("No products found.");
@@ -37,7 +37,7 @@ namespace ProductService.API.Controllers
         {
             try
             {
-                long result = await _iproductService.createProduct(newProduct);
+                long result = await _iproductService.CreateProduct(newProduct);
                 return Ok(result);
 
 
@@ -56,7 +56,7 @@ namespace ProductService.API.Controllers
         [HttpDelete]
         public async Task<ActionResult> deleteProduct([FromQuery]long productId)
         {
-            bool result = await _iproductService.deleteProductAsync(productId);
+            bool result = await _iproductService.DeleteProductAsync(productId);
             if (result)
             {
                 return Ok("sucessfull");
@@ -73,7 +73,7 @@ namespace ProductService.API.Controllers
         [HttpGet("internalSystemProducts")]
         public async Task<IActionResult> getInternalSystemProducts()
         {
-            List<ProductDTO> products=await _iproductService.getInternalSystemProducts();
+            List<ProductDTO> products=await _iproductService.GetInternalSystemProducts();
             return Ok(products);
         }
 
@@ -132,7 +132,7 @@ namespace ProductService.API.Controllers
         /// Exceptions are caught and logged, returning a generic error message on failure.
         /// </remarks>
         [HttpGet("byId")]
-        public async Task<IActionResult> getExternalProductById([FromQuery] long productId)
+        public async Task<IActionResult> GetExternalProductById([FromQuery] long productId)
         {
             try
             {
@@ -160,7 +160,7 @@ namespace ProductService.API.Controllers
         /// Exceptions are caught and logged, returning a generic error message on failure.
         /// </remarks>
         [HttpGet("productById")]
-        public async Task<IActionResult> getProductsById([FromQuery] long productId)
+        public async Task<IActionResult> GetProductsById([FromQuery] long productId)
         {
             try
             {
@@ -185,11 +185,11 @@ namespace ProductService.API.Controllers
         /// Exceptions are caught and logged, returning a generic error message on failure.
         /// </remarks>
         [HttpGet("category")]
-        public async Task<IActionResult> getAllCategories()
+        public async Task<IActionResult> GetAllCategories()
         {
             try
             {
-                return Ok(await _iproductService.getAllCategories());
+                return Ok(await _iproductService.GetAllCategories());
             }
             catch(Exception e)
             {
@@ -213,11 +213,11 @@ namespace ProductService.API.Controllers
         /// Exceptions are caught and logged, returning a generic error message on failure.
         /// </remarks>
         [HttpGet("ownerProducts")]
-        public async Task<IActionResult> getOwnerProducts([FromQuery]long userId)
+        public async Task<IActionResult> GetOwnerProducts([FromQuery]long userId)
         {
             try
             {
-                return Ok(await _iproductService.getOwnerProducts(userId));
+                return Ok(await _iproductService.GetOwnerProducts(userId));
             }
             catch (Exception e)
             {
@@ -241,7 +241,7 @@ namespace ProductService.API.Controllers
         /// Exceptions are caught and logged, returning a generic error message on failure.
         /// </remarks>
         [HttpPost("checkout")]
-        public async Task<IActionResult> checkoutOrders([FromBody] CheckoutDTO order)
+        public async Task<IActionResult> CheckoutOrders([FromBody] CheckoutDTO order)
         {
             try
             {
@@ -270,11 +270,11 @@ namespace ProductService.API.Controllers
         /// Exceptions are caught and logged, returning a generic error message on failure.
         /// </remarks>
         [HttpPatch("updateProduct")]
-        public async Task<IActionResult> updaeProduct([FromBody] ProductDTO product)
+        public async Task<IActionResult> UpdaeProduct([FromBody] ProductDTO product)
         {
             try
             {
-                return Ok(await _iproductService.updateProduct(product));
+                return Ok(await _iproductService.UpdateProduct(product));
             }
             catch(Exception e)
             {

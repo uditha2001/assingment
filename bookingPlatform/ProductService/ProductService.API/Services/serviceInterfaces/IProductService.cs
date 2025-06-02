@@ -39,7 +39,7 @@ namespace ProductService.API.Services.serviceInterfaces
         /// Useful for displaying products in the frontend.
         /// </summary>
         /// <returns>A task that represents the asynchronous operation. The result contains a list of <see cref="ProductDTO"/> objects.</returns>
-        Task<List<ProductDTO>> getAllProducts();
+        Task<List<ProductDTO>> GetAllProducts();
 
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace ProductService.API.Services.serviceInterfaces
         /// <returns>
         /// A boolean value: returns <c>true</c> if the product was created successfully; otherwise, <c>false</c>.
         /// </returns>
-        Task<long> createProduct(ProductDTO productdto);
+        Task<long> CreateProduct(ProductDTO productdto);
 
         /// <summary>
         /// Deletes an existing product asynchronously.
@@ -59,14 +59,14 @@ namespace ProductService.API.Services.serviceInterfaces
         /// <returns>
         /// A boolean value: returns <c>true</c> if the product was deleted successfully; otherwise, <c>false</c>.
         /// </returns>
-        Task<bool> deleteProductAsync(long productId);
+        Task<bool> DeleteProductAsync(long productId);
 
         /// <summary>
         /// Retrieves all products created using the internal system.
         /// This is used to identify products that can be safely deleted or updated without affecting external systems.
         /// </summary>
         /// <returns>A list of <see cref="ProductDTO"/> objects.</returns>
-        Task<List<ProductDTO>> getInternalSystemProducts();
+        Task<List<ProductDTO>> GetInternalSystemProducts();
 
         /// <summary>
         /// Extracts attributes and content data from a <see cref="ProductDTO"/> object 
@@ -85,7 +85,7 @@ namespace ProductService.API.Services.serviceInterfaces
         /// <see cref="ProductContentEntity"/> instances, which are then added to the 
         /// <paramref name="productentity"/>.
         /// </remarks>
-        void extractAttributesAndContentFromProductDTO(ProductDTO productdto, ProductEntity productentity);
+        void ExtractAttributesAndContentFromProductDTO(ProductDTO productdto, ProductEntity productentity);
 
         /// <summary>
         /// Retrieves a list of products owned by a specific user and maps them to <see cref="ProductDTO"/> objects.
@@ -104,7 +104,7 @@ namespace ProductService.API.Services.serviceInterfaces
         /// This method fetches all <see cref="ProductEntity"/> records associated with the given user ID using the product repository.
         /// Each entity is then converted into a <see cref="ProductDTO"/>, including mapping its attributes and content.
         /// </remarks>
-        Task<List<ProductDTO>> getOwnerProducts(long userId);
+        Task<List<ProductDTO>> GetOwnerProducts(long userId);
 
         /// <summary>
         /// Retrieves all product categories from the database and maps them to <see cref="ProductCategoryDTO"/> objects.
@@ -115,7 +115,7 @@ namespace ProductService.API.Services.serviceInterfaces
         /// <exception cref="Exception">
         /// Thrown when the category retrieval process fails.
         /// </exception>
-        Task<List<ProductCategoryDTO>> getAllCategories();
+        Task<List<ProductCategoryDTO>> GetAllCategories();
 
         /// <summary>
         /// Processes the sale of one or more products based on the provided order data.
@@ -225,7 +225,7 @@ namespace ProductService.API.Services.serviceInterfaces
         /// If the product does not exist, the method returns <c>false</c>.
         /// </remarks>
 
-        Task<bool> updateProduct(ProductDTO product);
+        Task<bool> UpdateProduct(ProductDTO product);
 
     }
 }

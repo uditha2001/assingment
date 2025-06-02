@@ -16,12 +16,12 @@ namespace AdapterFactory.controllers
             _adapterFactory = adapterFactory;
         }
         [HttpGet]
-        public async Task<IActionResult> getAllContents()
+        public async Task<IActionResult> GetAllContents()
 
         {
             try
             {
-                var products = await _adapterFactory.getAllProducts();
+                var products = await _adapterFactory.GetAllProductsAsync();
                 return Ok(products);
             }
             catch (NotSupportedException ex)
@@ -34,11 +34,11 @@ namespace AdapterFactory.controllers
             }
         }
         [HttpPost]
-        public async  Task<IActionResult> placeOrder([FromBody] CheckoutDTO order)
+        public async  Task<IActionResult> PlaceOrder([FromBody] CheckoutDTO order)
         {
             try
             {
-                bool res = await _adapterFactory.placeOrder(order);
+                bool res = await _adapterFactory.PlaceOrder(order);
                 return Ok(res);
 
             }
@@ -50,11 +50,14 @@ namespace AdapterFactory.controllers
         }
 
         [HttpPost("checkout")]
-        public async Task<IActionResult> checkout([FromBody] CheckoutDTO orderDetails)
+        public async Task<IActionResult> Checkout([FromBody] CheckoutDTO orderDetails)
         {
             try
             {
-                bool res = await _adapterFactory.checkoutOrder(orderDetails);
+                if (orderDetails == null)
+                    return BadRequest("Invalid checkout data.");
+
+                bool res = await _adapterFactory.CheckoutOrder(orderDetails);
                 return Ok(res);
 
             }

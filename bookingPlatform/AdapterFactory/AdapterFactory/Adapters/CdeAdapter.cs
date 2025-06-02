@@ -10,6 +10,7 @@ namespace AdapterFactory.Adapters
     {
         private readonly HttpClient _httpClient;
         private readonly ServiceUrls _urls;
+        public string SourceName => "cde";
 
 
         public CdeAdapter(HttpClient httpClient, IOptions<ServiceUrls> options)
