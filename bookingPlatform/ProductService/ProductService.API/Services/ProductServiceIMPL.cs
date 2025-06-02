@@ -138,59 +138,13 @@ namespace ProductService.API.Services
                         await _productRepo.RemoveAllProductAttributesByProvider(existingProduct);
                         await _productRepo.RemoveAllProductContentsWhereProviderNotEmpty(existingProduct);
 
-
-                        if (productDto.Attributes != null)
-                        {
-                            foreach (var attrDto in productDto.Attributes)
-                            {
-                                existingProduct.Attributes.Add(new ProductAttributesEntity
-                                {
-                                    provider = attrDto.provider,
-                                    Key = attrDto.Key,
-                                    Value = attrDto.Value,
-                                    ProductId = existingProduct.Id
-                                });
-                            }
-                        }
-
-                        if (productDto.Contents != null)
-                        {
-                            foreach (var contentDto in productDto.Contents)
-                            {
-                                existingProduct.Contents.Add(new ProductContentEntity
-                                {
-                                    provider = contentDto.provider,
-                                    Type = contentDto.Type,
-                                    Url = contentDto.Url,
-                                    Description = contentDto.Description,
-                                    ProductId = existingProduct.Id
-                                });
-                            }
-                        }
-
+                        ExtractAttributesAndContentFromProductDTO(productDto, existingProduct);
                         await _productRepo.UpdateProductAsync(existingProduct);
                     }
                     else
                     {
                         var newEntity = ProductDTOToEntity(productDto);
-
-                        newEntity.Attributes = productDto.Attributes?.Select(attr => new ProductAttributesEntity
-                        {
-                            provider = attr.provider,
-                            Key = attr.Key,
-                            Value = attr.Value,
-                            ProductId = productDto.Id
-                        }).ToList() ?? new List<ProductAttributesEntity>();
-
-                        newEntity.Contents = productDto.Contents?.Select(content => new ProductContentEntity
-                        {
-                            provider = content.provider,
-                            Type = content.Type,
-                            Url = content.Url,
-                            Description = content.Description,
-                            ProductId = productDto.Id
-                        }).ToList() ?? new List<ProductContentEntity>();
-
+                        ExtractAttributesAndContentFromProductDTO(productDto, newEntity);
                         await _productRepo.AddProduct(newEntity);
                     }
                 }
