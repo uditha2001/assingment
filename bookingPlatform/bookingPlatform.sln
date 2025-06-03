@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CdeMockService", "AmazoneMo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "userService.Api", "UserService\userService.Api\userService.Api.csproj", "{F7704092-4A46-4590-8400-0921128EDF63}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartService.Tests.Unit", "CartService\CartService.Tests.Unit\CartService.Tests.Unit.csproj", "{7B2F579F-BF07-41D0-9865-A232DF0824FE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{F7704092-4A46-4590-8400-0921128EDF63}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7704092-4A46-4590-8400-0921128EDF63}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7704092-4A46-4590-8400-0921128EDF63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B2F579F-BF07-41D0-9865-A232DF0824FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B2F579F-BF07-41D0-9865-A232DF0824FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B2F579F-BF07-41D0-9865-A232DF0824FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B2F579F-BF07-41D0-9865-A232DF0824FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -58,7 +58,7 @@ namespace CartService.API.services
                 List<CartItemDTO> allCarts = new List<CartItemDTO>();
                 if (items == null || !items.Any())
                 {
-                    throw new KeyNotFoundException("No items found in cart.");
+                    return allCarts;
                 }
 
                 foreach (CartItemEntity cart in items)
@@ -92,8 +92,16 @@ namespace CartService.API.services
             try
             {
 
-                await _cartRepository.UpdateItemQuantityAsync(cartItemId, newQuantity, newTotalPrice);
-                return true;
+               bool result= await _cartRepository.UpdateItemQuantityAsync(cartItemId, newQuantity, newTotalPrice);
+                if (result)
+                {
+                    return true;
+
+                }
+                else
+                {
+                    return false;
+                }
             }
             catch (Exception ex)
             {
@@ -138,8 +146,16 @@ namespace CartService.API.services
                 if (!response.IsSuccessStatusCode)
                     throw new HttpRequestException($"Order submission failed. StatusCode: {response.StatusCode}");
 
-                await _cartRepository.ClearCartAsync(userId);
-                return true;
+               bool result= await _cartRepository.ClearCartAsync(userId);
+                if (result)
+                {
+                    return true;
+
+                }
+                else
+                {
+                    return false;
+                }
             }
             catch (Exception ex)
             {
