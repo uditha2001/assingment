@@ -26,14 +26,14 @@ namespace ProductService.API.Repository.RepositoryInterfaces
         /// </summary>
         /// <param name="product">The <see cref="ProductEntity"/> object to be added.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        Task AddProduct(ProductEntity productEntity);
+        Task<int> AddProduct(ProductEntity productEntity);
 
         /// <summary>
         /// Updates an existing product entity in the database.only allow update entity created via internal system
         /// </summary>
         /// <param name="product">The <see cref="ProductEntity"/> to be updated.</param>
         /// <returns>A task that represents the asynchronous update operation.</returns>
-        Task UpdateProductAsync(ProductEntity product);
+        Task<int> UpdateProductAsync(ProductEntity product);
 
         /// <summary>
         /// Retrieves all product entities from the database.

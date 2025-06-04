@@ -27,7 +27,7 @@ namespace ProductService.API.Services
 
         }
 
-        public async Task<bool> CreateContent(ProductContentDTO productContentDTO, long productId)
+        public virtual async Task<bool> CreateContent(ProductContentDTO productContentDTO, long productId)
         {
             try
             {
@@ -118,54 +118,63 @@ namespace ProductService.API.Services
         }
         public async Task<bool> SaveProductImagesAsync(long productId, List<IFormFile> images)
         {
-            if (images == null || images.Count == 0)
-                return false;
-            var wwwrootPath = _env.WebRootPath;
-            if (!Directory.Exists(wwwrootPath))
-            {
-                Directory.CreateDirectory(wwwrootPath);
-            }
-            var folderPath = Path.Combine(wwwrootPath, "uploads", "products", productId.ToString());
-
-            if (!Directory.Exists(folderPath))
-            {
-                Directory.CreateDirectory(folderPath);
-            }
-
-            if (!Directory.Exists(folderPath))
-                Directory.CreateDirectory(folderPath);
-
-            var productContents = new List<ProductContentDTO>();
-            long contentIdCounter = 1;
-
-            foreach (var image in images)
-            {
-                if (image.Length > 0)
+            try
                 {
-                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
-                    var filePath = Path.Combine(folderPath, fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                if (images == null || images.Count == 0)
+                    return false;
+                var wwwrootPath = _env.WebRootPath;
+                if (!Directory.Exists(wwwrootPath))
                     {
-                        await image.CopyToAsync(stream);
+                    Directory.CreateDirectory(wwwrootPath);
+                    }
+                var folderPath = Path.Combine(wwwrootPath, "uploads", "products", productId.ToString());
+
+                if (!Directory.Exists(folderPath))
+                    {
+                    Directory.CreateDirectory(folderPath);
                     }
 
-                    var relativeUrl = Path.Combine("uploads", "products", productId.ToString(), fileName).Replace("\\", "/");
-                  
+                if (!Directory.Exists(folderPath))
+                    Directory.CreateDirectory(folderPath);
 
-                    ProductContentDTO contentDto = new ProductContentDTO
+                var productContents = new List<ProductContentDTO>();
+                long contentIdCounter = 1;
+
+                foreach (var image in images)
                     {
-                        provider = "",
-                        Type = image.ContentType,
-                        Url = relativeUrl,
-                        Description = $"Image for product {productId}"
-                    };
-                    await CreateContent(contentDto,productId);
+                    if (image.Length > 0)
+                        {
+                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
+                        var filePath = Path.Combine(folderPath, fileName);
 
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                            {
+                            await image.CopyToAsync(stream);
+                            }
+
+                        var relativeUrl = Path.Combine("uploads", "products", productId.ToString(), fileName).Replace("\\", "/");
+
+
+                        ProductContentDTO contentDto = new ProductContentDTO
+                            {
+                            provider = "",
+                            Type = image.ContentType,
+                            Url = relativeUrl,
+                            Description = $"Image for product {productId}"
+                            };
+                        await CreateContent(contentDto, productId);
+
+                        }
+                    }
+
+                return true;
                 }
-            }
-
-            return true;
+            catch (Exception ex)
+                {
+                _logger.LogError(ex, "Error saving content");
+                return false;
+                }
+         
         }
 
     }

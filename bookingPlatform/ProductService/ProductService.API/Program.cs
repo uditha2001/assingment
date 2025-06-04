@@ -20,6 +20,7 @@ builder.Services.AddScoped<IProductContentService, ProductContentServiceIMPL>();
 builder.Services.AddScoped<IProductContentRepository, ProductContentRepositoryIMPL>();
 builder.Services.AddScoped<IProductAttributeService, ProductAttributeServiceIMPL>();
 builder.Services.AddScoped<IProductAttriuteRepository, ProductAttributeRepositoryIMPL>();
+builder.Services.AddHttpClient<IProductService, ProductServiceImpl>();
 builder.Services.Configure<ServiceUrls>(builder.Configuration.GetSection("ServiceUrls"));
 
 

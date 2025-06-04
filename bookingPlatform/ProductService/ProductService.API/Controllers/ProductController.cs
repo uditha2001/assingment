@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OrderService.API.DTO;
+using Polly.Caching;
 using ProductService.API.DTO;
 using ProductService.API.Services;
 using ProductService.API.Services.serviceInterfaces;
@@ -21,12 +22,20 @@ namespace ProductService.API.Controllers
         [HttpGet("allProducts")]
         public async Task<ActionResult<ProductDTO[]>> GetAllProducts()
         {
-            var result = await _iproductService.GetAllProducts();
+            try
+            {
+                var result = await _iproductService.GetAllProducts();
 
-            if (result == null)
-                return NotFound("No products found.");
+                if (result == null)
+                    return NotFound("No products found.");
 
-            return Ok(result);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while processing the request.");
+            }
+
         }
 
         /// <summary>

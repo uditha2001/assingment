@@ -2,6 +2,7 @@
 using CartService.API.Model.Entities;
 using CartService.API.repository.interfaces;
 using CartService.API.services;
+using CartService.API.services.interfaces;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
@@ -309,10 +310,10 @@ namespace CartService.Tests.Unit.Services
             {
                 OrderService = "http://localhost"
             });
-
+            var cartService = new CartServiceIMPL(_cartRepositoryMock.Object, httpClient, serviceUrls);
 
             // Act
-            var result = await _cartServiceimpl.SubmitOrderAsync(userId);
+            var result = await cartService.SubmitOrderAsync(userId);
 
             // Assert
             Assert.True(result);
@@ -396,6 +397,41 @@ namespace CartService.Tests.Unit.Services
             // Assert
             Assert.False(result);
         }
+
+        [Fact]
+        public async Task GetCartItemsCount_ShouldReturnCount_WhenRepositorySucceeds()
+        {
+            // Arrange
+            long userId = 1;
+            int expectedCount = 5;
+
+            _cartRepositoryMock
+                .Setup(repo => repo.GetCartItemsCount(userId))
+                .ReturnsAsync(expectedCount);
+
+            // Act
+            var result = await _cartServiceimpl.GetCartItemsCount(userId);
+
+            // Assert
+            Assert.Equal(expectedCount, result);
+        }
+        [Fact]
+        public async Task GetCartItemsCount_ShouldThrowApplicationException_WhenRepositoryFails()
+        {
+            // Arrange
+            long userId = 1;
+
+            _cartRepositoryMock
+                .Setup(repo => repo.GetCartItemsCount(userId))
+                .ThrowsAsync(new Exception("DB failure"));
+
+            // Act & Assert
+            var ex = await Assert.ThrowsAsync<ApplicationException>(() =>
+                _cartServiceimpl.GetCartItemsCount(userId));
+
+            Assert.Equal("failed to get count", ex.Message);
+        }
+
 
 
 

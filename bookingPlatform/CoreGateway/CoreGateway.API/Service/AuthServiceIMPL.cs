@@ -22,27 +22,34 @@ namespace CoreGateway.API.Service
         }
 
         public string GenerateJwtToken(string username)
-        {
-            var secret = _configuration["Jwt:Key"];
-            var issuer = _configuration["Jwt:Issuer"];
-            var audience = _configuration["Jwt:Audience"];
-            var claims = new[]
-                  {
+            {
+            try
+                {
+                var secret = _configuration["Jwt:Key"];
+                var issuer = _configuration["Jwt:Issuer"];
+                var audience = _configuration["Jwt:Audience"];
+                var claims = new[]
+                      {
             new Claim(JwtRegisteredClaimNames.Sub, username),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var token = new JwtSecurityToken(
-                issuer: issuer,
-                audience: audience,
-                claims: claims,
-                expires: DateTime.Now.AddMinutes(30),
-                signingCredentials: creds);
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                var token = new JwtSecurityToken(
+                    issuer: issuer,
+                    audience: audience,
+                    claims: claims,
+                    expires: DateTime.Now.AddMinutes(30),
+                    signingCredentials: creds);
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
+                return new JwtSecurityTokenHandler().WriteToken(token);
+                }
+            catch (Exception ex)
+                {
+                throw new Exception("Error generating JWT token", ex);
+                }
+            }
 
         public async Task<TokenDTO> ValidateUserCredentials(string userName, string password)
         {
@@ -72,6 +79,7 @@ namespace CoreGateway.API.Service
             }
             
         }
+
 
     }
 }

@@ -13,15 +13,13 @@ namespace OrderService.API.services
     {
         private readonly IOrderRepository _repo;
         private readonly ILogger<OrderServiceIMPL> _logger;
-        private readonly HttpClient _httpClient;
 
 
 
-        public OrderServiceIMPL(IOrderRepository repo, ILogger<OrderServiceIMPL> logger, HttpClient httpClient)
+        public OrderServiceIMPL(IOrderRepository repo, ILogger<OrderServiceIMPL> logger)
         {
             _repo = repo;
             _logger = logger;
-            _httpClient = httpClient;
         }
         public async Task<int> CreateOrderAsync(OrderDTO orderDto)
         {
@@ -29,8 +27,8 @@ namespace OrderService.API.services
             try
             {
                 OrderEntity orderentity = MapToEntity(orderDto);
-                await  _repo.CreateOrderAsync(orderentity);
-                return 1;
+                int result=await  _repo.CreateOrderAsync(orderentity);
+                return result;
             }
             catch(Exception e) {
                 Console.WriteLine($"Error in CreateProductAsync: {e.Message}");

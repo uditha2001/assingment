@@ -25,12 +25,13 @@ namespace ProductService.API.Services
           IProductRepo productRepo,
           ILogger<ProductServiceImpl> logger,
           IOptions<ServiceUrls> options,
+          HttpClient httpClient,
           IProductContentService productContentService
 
          )
         {
             _productRepo = productRepo;
-            _httpClient = new HttpClient();
+            _httpClient = httpClient;
             _logger = logger;
             _urls = options.Value;
             _productContentService = productContentService;
@@ -42,8 +43,16 @@ namespace ProductService.API.Services
             try
             {
                 ProductEntity product = ProductDTOToEntity(productDto);
-                await _productRepo.AddProduct(product);
-                return true;
+                int result=await _productRepo.AddProduct(product);
+                if (result > 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+
+                }
 
             }
             catch (Exception ex)
@@ -161,16 +170,26 @@ namespace ProductService.API.Services
 
         public async Task<List<ProductDTO>> GetAllProducts()
         {
-            var products = await _productRepo.GetAllProducts();
-            List<ProductDTO> productsList = new List<ProductDTO>();
-            foreach (ProductEntity productEntity in products)
+            try
             {
-                ProductDTO productDto = new ProductDTO();
-                productDto = ProductEntityToDTO(productEntity);
-                ExtractAttributesAndContentToDTO(productEntity, productDto);
-                productsList.Add(productDto);
+                var products = await _productRepo.GetAllProducts();
+                List<ProductDTO> productsList = new List<ProductDTO>();
+                foreach (ProductEntity productEntity in products)
+                {
+                    ProductDTO productDto = new ProductDTO();
+                    productDto = ProductEntityToDTO(productEntity);
+                    ExtractAttributesAndContentToDTO(productEntity, productDto);
+                    productsList.Add(productDto);
+                }
+                return productsList;
             }
-            return productsList;
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                _logger.LogError(e, "An error occurred while processing the request.");
+                throw new Exception("failed to get products");
+            }
+
         }
 
         public async Task<long> CreateProduct(ProductDTO productdto)
@@ -362,7 +381,7 @@ namespace ProductService.API.Services
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                _logger.LogError(e, "An error occurred while processing the request.");
+                _logger.LogError(e, "An error occurred while processing the request." + e.Message);
                 throw;
             }
         }
@@ -372,18 +391,16 @@ namespace ProductService.API.Services
             try
             {
                 ProductEntity product = await _productRepo.GetExternalProductByIdAsync(productId);
-                if (product != null)
-                {
+                
                     ProductDTO productDto = ProductEntityToDTO(product);
                     return productDto;
-                }
-                return new ProductDTO();
+                
 
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                _logger.LogError(e, "An error occurred while processing the request.");
+                _logger.LogError(e, "An error occurred while processing the request."+e.Message);
                 throw;
             }
         }
@@ -392,19 +409,14 @@ namespace ProductService.API.Services
             try
             {
                 ProductEntity product = await _productRepo.GetProductById(productId);
-                if (product != null)
-                {
                     ProductDTO productDto = ProductEntityToDTO(product);
                     ExtractAttributesAndContentToDTO(product, productDto);
                     return productDto;
-                }
-                return new ProductDTO();
-
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                _logger.LogError(e, "An error occurred while processing the request.");
+                _logger.LogError(e, "An error occurred while processing the request."+e.Message);
                 throw;
             }
         }
@@ -424,6 +436,7 @@ namespace ProductService.API.Services
             }
             catch (Exception e)
             {
+                _logger.LogError(e, "An error occurred while processing the request."+e.Message);
                 throw new Exception("failed to get categories");
             }
         }
@@ -445,7 +458,7 @@ namespace ProductService.API.Services
 
             return new ProductCategoryEntity
             {
-                Id = dto.Id, // Optional: EF will ignore if auto-generated
+                Id = dto.Id, 
                 Name = dto.Name,
                 Description = dto.Description
             };
@@ -467,6 +480,7 @@ namespace ProductService.API.Services
             }
             catch (Exception e)
             {
+                _logger.LogError(e, "An error occurred while processing the request." + e.Message);
                 throw new Exception(
                     "failed to get products"
                     );
@@ -507,8 +521,9 @@ namespace ProductService.API.Services
 
                 }
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
+                _logger.LogError(e, "An error occurred while processing the request." + e.Message);
                 throw new Exception(
                     "error occur");
             }
@@ -568,15 +583,22 @@ namespace ProductService.API.Services
                             });
                         }
                     }
-                    await _productRepo.UpdateProductAsync(existingProduct);
-                    return true;
+                   int effectRaws= await _productRepo.UpdateProductAsync(existingProduct);
+                    if (effectRaws > 0)
+                        {
+                        return true;
+                        }
+                    else
+                        {
+                        return false;
+                        }
 
                 }
                 return false;
-               
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
+                _logger.LogError(e, "An error occurred while processing the request." + e.Message);
                 throw new Exception(
                     "error occur");
             }

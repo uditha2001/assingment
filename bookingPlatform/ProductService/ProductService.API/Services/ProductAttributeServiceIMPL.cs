@@ -56,16 +56,22 @@ namespace ProductService.API.Services
 
         public async Task<List<ProductAttributesDTO>> GetAllAttributes(long productId) 
         {
-           
-                List<ProductAttributesDTO> productAttributesDTOs = new List<ProductAttributesDTO>();
-                List<ProductAttributesEntity> productAttributeEntity =await _repo.GetAllAttributes(productId);
-                foreach (ProductAttributesEntity attributesEntity in productAttributeEntity)
+            try
                 {
+                List<ProductAttributesDTO> productAttributesDTOs = new List<ProductAttributesDTO>();
+                List<ProductAttributesEntity> productAttributeEntity = await _repo.GetAllAttributes(productId);
+                foreach (ProductAttributesEntity attributesEntity in productAttributeEntity)
+                    {
                     ProductAttributesDTO productAttributesDTO = ToDTO(attributesEntity);
                     productAttributesDTOs.Add(productAttributesDTO);
+                    }
+                return productAttributesDTOs;
                 }
-               return productAttributesDTOs;     
-            
+            catch (Exception e)
+                {
+                _logger.LogError(e, "An error occurred while processing the request.");
+                throw new Exception($"An error occurred while fetching attributes for product ID {productId}: {e.Message}", e);
+                }
         }
 
         public async Task<bool> UpdateAttribute(List<ProductAttributesDTO> productAttributeDTOs, long productId)

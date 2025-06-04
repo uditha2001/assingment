@@ -14,10 +14,11 @@ namespace ProductService.API.Repository
         {
             _dbContext = dbContext;
         }
-        public async Task AddProduct(ProductEntity product)
+        public async Task<int> AddProduct(ProductEntity product)
         {
             _dbContext.Products.Add(product);
-            await _dbContext.SaveChangesAsync();
+           int effectedRaws= await _dbContext.SaveChangesAsync();
+            return effectedRaws;
         }
 
 
@@ -53,9 +54,9 @@ namespace ProductService.API.Repository
 
 
        
-        public async Task UpdateProductAsync(ProductEntity product)
+        public async Task<int> UpdateProductAsync(ProductEntity product)
         {
-            await _dbContext.SaveChangesAsync();
+            return await _dbContext.SaveChangesAsync();
         }
         public async Task<List<ProductEntity>> GetAllProducts()
         {
