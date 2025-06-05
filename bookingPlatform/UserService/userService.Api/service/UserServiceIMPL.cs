@@ -19,24 +19,49 @@ namespace userService.Api.service
 
         public async Task<bool> CreateUserAsync(UserDTO user)
         {
-            user.password=BCrypt.Net.BCrypt.HashPassword(user.password);
-            var entity = ToEntity(user);
-            var result = await _userRepository.CreateUserAsync(entity);
+            if (user == null)
+                throw new ArgumentNullException(nameof(user), "User data must not be null.");
 
-            if (!result)
-                throw new Exception("User creation failed.");
+            if (string.IsNullOrWhiteSpace(user.userName) ||
+                string.IsNullOrWhiteSpace(user.password) ||
+                string.IsNullOrWhiteSpace(user.Email))
+                throw new ArgumentException("Username, password, and email are required.");
 
-            return result;
+            try
+            {
+                user.password = BCrypt.Net.BCrypt.HashPassword(user.password);
+
+                var entity = ToEntity(user);
+
+                var result = await _userRepository.CreateUserAsync(entity);
+
+                if (!result)
+                    throw new InvalidOperationException("User creation failed.");
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while creating user: {ex.Message}", ex);
+            }
         }
 
         public async Task<UserDTO> GetUsersAsync(long userId)
         {
-            var user = await _userRepository.GetUsersAsync(userId);
+            try
+            {
+                var user = await _userRepository.GetUsersAsync(userId);
 
-            if (user == null)
-                throw new Exception($"User with ID {userId} not found.");
+                if (user == null)
+                    throw new Exception($"User with ID {userId} not found.");
 
-            return ToDTO(user);
+                return ToDTO(user);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    $"An error occurred while retrieving user: {ex.Message}");
+            }
         }
 
         public async Task<UserDTO> LoginUserAsync(string userName, string password)
@@ -45,17 +70,16 @@ namespace userService.Api.service
             if (user == null)
                 throw new Exception("user not found");
 
-            bool isPasswordVailid = BCrypt.Net.BCrypt.Verify(password,user.password);
+            bool isPasswordVailid = BCrypt.Net.BCrypt.Verify(password, user.password);
             if (!isPasswordVailid)
             {
                 throw new Exception("invailid password");
             }
             else
             {
-                UserDTO userDto=ToDTO(user);
-                return userDto ;
+                UserDTO userDto = ToDTO(user);
+                return userDto;
             }
-            
         }
 
         public UserDTO ToDTO(UserEntity entity)
@@ -67,7 +91,7 @@ namespace userService.Api.service
                 password = entity.password,
                 FirstName = entity.firstName,
                 LastName = entity.lastName,
-                Email=entity.Email,
+                Email = entity.Email,
             };
         }
 

@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdapterService.Test.Unit", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService.Test.Unit", "UserService\UserService.Test.Unit\UserService.Test.Unit.csproj", "{5E6635EB-5F29-4F65-AD5D-D7805DABDF94}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartService.Test.Integration", "CartService\CartService.Test.Integration\CartService.Test.Integration.csproj", "{F5A565BE-1D52-4180-B82A-D43A7ECE9BCF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,6 +95,10 @@ Global
 		{5E6635EB-5F29-4F65-AD5D-D7805DABDF94}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E6635EB-5F29-4F65-AD5D-D7805DABDF94}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E6635EB-5F29-4F65-AD5D-D7805DABDF94}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5A565BE-1D52-4180-B82A-D43A7ECE9BCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5A565BE-1D52-4180-B82A-D43A7ECE9BCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5A565BE-1D52-4180-B82A-D43A7ECE9BCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5A565BE-1D52-4180-B82A-D43A7ECE9BCF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

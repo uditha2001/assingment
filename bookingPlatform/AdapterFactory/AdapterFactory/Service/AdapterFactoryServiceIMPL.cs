@@ -4,7 +4,6 @@ using OrderService.API.DTO;
 using ProductService.API.DTO;
 using System.Text.Json;
 
-
 namespace AdapterFactory.Service
 {
     public class AdapterFactoryServiceIMPL : IAdapterFactory
@@ -14,33 +13,27 @@ namespace AdapterFactory.Service
         private readonly ServiceUrls _urls;
         private readonly Dictionary<string, IAdapter> _adapters;
 
-        public AdapterFactoryServiceIMPL(HttpClient httpClient, ILogger<AdapterFactoryServiceIMPL> logger, IOptions<ServiceUrls> options,IEnumerable<IAdapter> adapters)
+        public AdapterFactoryServiceIMPL(HttpClient httpClient, ILogger<AdapterFactoryServiceIMPL> logger, IOptions<ServiceUrls> options, IEnumerable<IAdapter> adapters)
         {
-            _httpClient = httpClient;
-            _logger = logger;
-            _urls = options.Value;
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _urls = options?.Value ?? throw new ArgumentNullException(nameof(options));
+            if (adapters == null) throw new ArgumentNullException(nameof(adapters));
             _adapters = adapters.ToDictionary(a => a.SourceName.ToLower(), a => a);
         }
 
-
         public IAdapter GetAdapterById(string adapterId)
         {
-            try
+            if (string.IsNullOrWhiteSpace(adapterId))
+                throw new ArgumentException("Adapter ID must not be null or empty.", nameof(adapterId));
+
+            if (_adapters.TryGetValue(adapterId.ToLower(), out var adapter))
             {
-                if (_adapters.TryGetValue(adapterId.ToLower(), out var adapter))
-                {
-                    return adapter;
-                }
-                else
-                {
-                    throw new KeyNotFoundException($"Adapter with id '{adapterId}' not found.");
-                }
+                return adapter;
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in GetAdapterById: {ex.Message}");
-                throw;
-            }
+
+            _logger.LogError("Adapter with id '{AdapterId}' not found.", adapterId);
+            throw new KeyNotFoundException($"Adapter with id '{adapterId}' not found.");
         }
 
         public async Task<List<ProductDTO>> GetAllProductsAsync()
@@ -56,7 +49,7 @@ namespace AdapterFactory.Service
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error fetching products from adapter '{adapterId}': {ex.Message}");
+                    _logger.LogError(ex, "Error fetching products from adapter '{AdapterId}'", adapterId);
                     return new List<ProductDTO>();
                 }
             });
@@ -65,70 +58,81 @@ namespace AdapterFactory.Service
             return productLists.SelectMany(p => p).ToList();
         }
 
-
-        // Return true if no exception occurs, because adapters do not store persistent data,
-        // and the order is considered placed successfully.
-
         public async Task<bool> PlaceOrder(CheckoutDTO order)
         {
+            if (order == null)
+                throw new ArgumentNullException(nameof(order));
+
             try
             {
-                List<ProductDTO> products = new List<ProductDTO>();
-                    _logger.LogInformation("Calling ProductService with ID: {ProductId}", order.ProductId);
+                _logger.LogInformation("Calling ProductService with ID: {ProductId}", order.ProductId);
 
-                    var response = await _httpClient.GetAsync($"{_urls.ProductService}/api/v1/product/byId?productId={order.ProductId}");
-
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        throw new HttpRequestException($"Order submission failed. StatusCode: {response.StatusCode}");
-                    }
-
-                    var responseContent = await response.Content.ReadAsStringAsync();
-                    ProductDTO product = JsonSerializer.Deserialize<ProductDTO>(responseContent, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-                    return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in checkoutOrder: {ex.Message}");
-                throw;
-            }
-
-
-
-        }
-
-        public async Task<bool> CheckoutOrder(CheckoutDTO order)
-
-        {
-            try
-            {
-                Console.WriteLine("hello products " + _urls.ProductService);
                 var response = await _httpClient.GetAsync($"{_urls.ProductService}/api/v1/product/byId?productId={order.ProductId}");
 
                 if (!response.IsSuccessStatusCode)
                 {
+                    _logger.LogError("Order submission failed. StatusCode: {StatusCode}", response.StatusCode);
                     throw new HttpRequestException($"Order submission failed. StatusCode: {response.StatusCode}");
                 }
 
                 var responseContent = await response.Content.ReadAsStringAsync();
-                ProductDTO product = JsonSerializer.Deserialize<ProductDTO>(responseContent, new JsonSerializerOptions
+                var product = JsonSerializer.Deserialize<ProductDTO>(responseContent, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
 
-                IAdapter adapter = GetAdapterById(product.provider);
-                return adapter.Checkout();
+                if (product == null)
+                {
+                    _logger.LogError("Product deserialization failed for ProductId: {ProductId}", order.ProductId);
+                    throw new InvalidOperationException("Product deserialization failed.");
+                }
+
+                return true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Error in checkoutOrder: {ex.Message}");
+                _logger.LogError(ex, "Error in PlaceOrder for ProductId: {ProductId}", order?.ProductId);
                 throw;
             }
-           
-            
+        }
+
+        public async Task<bool> CheckoutOrder(CheckoutDTO order)
+        {
+            if (order == null)
+                throw new ArgumentNullException(nameof(order));
+
+            try
+            {
+                _logger.LogInformation("Calling ProductService for checkout with ID: {ProductId}", order.ProductId);
+
+                var response = await _httpClient.GetAsync($"{_urls.ProductService}/api/v1/product/byId?productId={order.ProductId}");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogError("Order submission failed. StatusCode: {StatusCode}", response.StatusCode);
+                    throw new HttpRequestException($"Order submission failed. StatusCode: {response.StatusCode}");
+                }
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var product = JsonSerializer.Deserialize<ProductDTO>(responseContent, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                if (product == null || string.IsNullOrWhiteSpace(product.provider))
+                {
+                    _logger.LogError("Product deserialization failed or provider missing for ProductId: {ProductId}", order.ProductId);
+                    throw new InvalidOperationException("Product deserialization failed or provider missing.");
+                }
+
+                var adapter = GetAdapterById(product.provider);
+                return adapter.Checkout();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in CheckoutOrder for ProductId: {ProductId}", order?.ProductId);
+                throw;
+            }
         }
     }
 }
