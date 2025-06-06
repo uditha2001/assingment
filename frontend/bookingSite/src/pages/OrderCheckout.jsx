@@ -107,7 +107,9 @@ const OrderCheckout = () => {
           totalOrderprice: totalOrderPrice,
           items: successfulItems,
         };
+        console.log("Sell response1:", order);
         const response = await createOrder(order);
+        console.log("Order creation response:", response);
         if (response.status === 201) {
           // Clear the cart after successful order creation
           await clearCart(userId);

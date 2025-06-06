@@ -41,6 +41,7 @@ const CartViewPage = () => {
             response.data.map(async (item) => {
               if (!details[item.productId]) {
                 const prodRes = await getProductById(item.productId);
+                console.log("Product details fetched:", prodRes.data);
                 if (prodRes.status === 200) {
                   details[item.productId] = prodRes.data;
                 }

@@ -326,65 +326,77 @@ namespace ProductService.API.Services
 
         }
 
-       
+
         public async Task<bool> SellProducts(List<CheckoutDTO> orderDto)
-        {
-            try
             {
-                bool status=false;
-                foreach (CheckoutDTO orders in orderDto)
+            bool overallStatus = true;
+
+            try
                 {
+                foreach (CheckoutDTO orders in orderDto)
+                    {
                     ProductEntity product = await _productRepo.GetProductById(orders.ProductId);
-                    bool isProductInternal = await _productRepo.CheckInternalSystemProduct(orders.ProductId);
-                    if (isProductInternal)
-                    {
-                        if (product.availableQuantity >= orders.quantity)
+                    if (product == null)
                         {
-                            
-                            await _productRepo.SellProducts(product.Id, (product.availableQuantity - orders.quantity));
-                            status = true;
+                        _logger.LogWarning($"Product with ID {orders.ProductId} not found.");
+                        overallStatus = false;
+                        continue;
                         }
-                    }
+
+                    bool isProductInternal = await _productRepo.CheckInternalSystemProduct(orders.ProductId);
+
+                    if (isProductInternal)
+                        {
+                        if (product.availableQuantity >= orders.quantity)
+                            {
+                            await _productRepo.SellProducts(product.Id, product.availableQuantity - orders.quantity);
+                            }
+                        else
+                            {
+                            _logger.LogWarning($"Insufficient quantity for product ID {orders.ProductId}.");
+                            overallStatus = false;
+                            }
+                        }
                     else
-                    {
-                        
+                        {
+                        try
+                            {
                             var json = JsonSerializer.Serialize(orders);
                             var order = new StringContent(json, Encoding.UTF8, "application/json");
                             var response = await _httpClient.PostAsync($"{_urls.AdapterFactoryService}/api/v1/Adapter", order);
-                            if (response.IsSuccessStatusCode)
-                            {
-                                Console.WriteLine("Product updated successfully.");
-                            var responseBody = await response.Content.ReadAsStringAsync();
 
-                            if (bool.TryParse(responseBody, out bool isSuccess) && isSuccess)
-                            {
-                                status = true;
-                            }
+                            if (response.IsSuccessStatusCode)
+                                {
+                                var responseBody = await response.Content.ReadAsStringAsync();
+                                if (!(bool.TryParse(responseBody, out bool isSuccess) && isSuccess))
+                                    {
+                                    _logger.LogWarning($"Adapter response was invalid or false for product ID {orders.ProductId}.");
+                                    overallStatus = false;
+                                    }
+                                }
                             else
+                                {
+                                _logger.LogWarning($"Failed to update external product. StatusCode: {response.StatusCode}");
+                                overallStatus = false;
+                                }
+                            }
+                        catch (Exception ex)
                             {
-                                Console.WriteLine("Response was false or not a valid boolean.");
-                                status= false;
+                            _logger.LogError(ex, $"HTTP call failed for product ID {orders.ProductId}");
+                            overallStatus = false;
                             }
                         }
-                            else
-                            {
-                                Console.WriteLine($"Failed to update product: {response.StatusCode}");
-                                status= false;
-                            }
-
-                        
                     }
-                }
-                return status;
 
-            }
+                return overallStatus;
+                }
             catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                _logger.LogError(e, "An error occurred while processing the request." + e.Message);
+                {
+                _logger.LogError(e, "An error occurred while processing SellProducts.");
                 throw;
+                }
             }
-        }
+
 
         public async Task<ProductDTO> GetExtranalProductById(long productId)
         {
@@ -410,8 +422,11 @@ namespace ProductService.API.Services
             {
                 ProductEntity product = await _productRepo.GetProductById(productId);
                     ProductDTO productDto = ProductEntityToDTO(product);
+                if (product != null)
+                    {
                     ExtractAttributesAndContentToDTO(product, productDto);
-                    return productDto;
+                    }
+                return productDto;
             }
             catch (Exception e)
             {
