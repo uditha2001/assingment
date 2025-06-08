@@ -30,9 +30,10 @@ jobs:
           dotnet-version: 8.0.x
       - name: Build productservice
         run: |
-          echo "run unit test and build .net application"
-          cd bookingPlatform/ProductService/
-          dotnet restore ProductService.API/ProductService.API.csproj
-          dotnet build ProductService.API/ProductService.API.csproj -c Release
-          dotnet test ProductServiceTest/ProjectService.Test.Unit.csproj
-          dotnet publish ProductService.API/ProductService.API.csproj -c Release -o publish
+            echo "run unit test and build .net application"
+            cd bookingPlatform/ProductService/
+            dotnet restore ProductService.API/ProductService.API.csproj
+            dotnet build ProductService.API/ProductService.API.csproj -c Release
+            dotnet test ProductServiceTest/ProductService.Test.Unit.csproj
+            dotnet publish ProductService.API/ProductService.API.csproj -c Release -o publish
+        
