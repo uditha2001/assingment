@@ -23,7 +23,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartService.Tests.Unit", "C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService.Test.Unit", "OrderService\OrderServiceTest\OrderService.Test.Unit.csproj", "{C68F86DE-FF3D-45E6-B148-660AEC07AC16}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectService.Test.Unit", "ProductService\ProjectServiceTest\ProjectService.Test.Unit.csproj", "{2C5BF2B7-1360-4345-93AC-36FC488FC016}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductService.Test.Unit", "ProductService\ProjectServiceTest\ProductService.Test.Unit.csproj", "{2C5BF2B7-1360-4345-93AC-36FC488FC016}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreGateway.Test.Unit", "CoreGateway\CoreGateway.Test.Unit\CoreGateway.Test.Unit.csproj", "{C22AA0E8-3684-4145-92F9-3125F15EE4CB}"
 EndProject
