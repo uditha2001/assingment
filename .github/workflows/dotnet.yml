@@ -5,24 +5,38 @@ name: .NET
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
+  schedule:
+    - cron: "0 0 * * 0"
+
+permissions:
+  contents: write
+  actions: read
 
 jobs:
-  build:
-
+  Backend:
+    name: analyse and build backend
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build productservice
+        run: |
+          echo "run unit test and build .net application"
+          cd ./bookingPlatform/productService/
+          dotnet restore ProductService.API/ProductService.API.csproj
+          dotnet build ProductService.API/ProductService.API.csproj -c Release
+          dotnet test ProductServiceTest/ProjectService.Test.Unit.csproj
+          dotnet publish ProductService.API/ProductService.API.csproj -c Release -o publish
