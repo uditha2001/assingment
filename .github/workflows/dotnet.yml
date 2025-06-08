@@ -31,7 +31,7 @@ jobs:
       - name: Build productservice
         run: |
           echo "run unit test and build .net application"
-          cd /bookingPlatform/productService/
+          cd bookingPlatform/productService/
           dotnet restore ProductService.API/ProductService.API.csproj
           dotnet build ProductService.API/ProductService.API.csproj -c Release
           dotnet test ProductServiceTest/ProjectService.Test.Unit.csproj
